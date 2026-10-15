@@ -1,0 +1,31 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Test & Notebook checkpoints
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Large External Raw Dataset (1.11 GB Amazon ESCI dumps exceed GitHub's 100MB limit)
+Amazon-ESCI/
+
+# IDE & Editor metadata
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

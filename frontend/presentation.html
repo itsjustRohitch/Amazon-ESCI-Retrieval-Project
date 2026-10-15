@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project 14: Product Search using Amazon ESCI — Presentation Deck</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #1e1b4b;
+      --accent: #10b981;
+      --bg: #0f172a;
+      --slide-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    .deck-container {
+      width: 90vw;
+      max-width: 1200px;
+      height: 75vh;
+      max-height: 700px;
+      background: var(--slide-bg);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .slide {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      padding: 40px 50px;
+      display: none;
+      flex-direction: column;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      overflow-y: auto;
+    }
+    .slide.active {
+      display: flex;
+      opacity: 1;
+    }
+    .slide-tag {
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+    .slide-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 24px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 12px;
+    }
+    .title-hero {
+      margin: auto 0;
+      text-align: center;
+    }
+    .title-hero h1 {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin-bottom: 12px;
+      line-height: 1.15;
+    }
+    .title-hero h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 24px;
+    }
+    .title-hero p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+    }
+    .card-stat {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .card p, .card li {
+      font-size: 0.95rem;
+      color: #334155;
+      line-height: 1.5;
+    }
+    ul { list-style: none; }
+    li { margin-bottom: 8px; position: relative; padding-left: 20px; }
+    li::before {
+      content: "✔";
+      color: var(--accent);
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    th {
+      background: #f1f5f9;
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+    .best-badge {
+      background: #dcfce7;
+      color: #15803d;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 90vw;
+      max-width: 1200px;
+      margin-top: 20px;
+      color: white;
+    }
+    .btn-nav {
+      background: #1e293b;
+      color: white;
+      border: 1px solid #334155;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-nav:hover {
+      background: var(--primary);
+    }
+    .progress-bar {
+      height: 4px;
+      background: #334155;
+      width: 250px;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 11%;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="deck-container">
+
+    <!-- Slide 1: Title -->
+    <div class="slide active">
+      <div class="title-hero">
+        <div class="slide-tag">Information Retrieval Course Project</div>
+        <h1>Product Search using Amazon ESCI</h1>
+        <h2>Multi-Paradigm IR Benchmark: TF-IDF, BM25, Sentence Transformers, and Hybrid RRF</h2>
+        <p>Evaluated on Standardized Metrics: <b>Precision@10, Recall, MAP, and Graded nDCG</b></p>
+      </div>
+    </div>
+
+    <!-- Slide 2: Problem Statement -->
+    <div class="slide">
+      <div class="slide-tag">Project Overview</div>
+      <h2 class="slide-title">Goal & Relevance Scheme (Amazon ESCI)</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🎯 Problem Statement</div>
+          <p style="margin-bottom:12px;">E-commerce queries are challenging because customers search using short intent terms while products have verbose titles.</p>
+          <p>The <b>Amazon ESCI Dataset</b> provides human-annotated relevance judgments categorized into four distinct customer intent levels.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🏷️ The 4 ESCI Relevance Levels</div>
+          <p><b>[E] Exact (Gain: 3.0):</b> The item precisely satisfies the query.</p>
+          <p style="margin-top:6px;"><b>[S] Substitute (Gain: 2.0):</b> Functional alternative (e.g. iPhone 13 -> iPhone 14).</p>
+          <p style="margin-top:6px;"><b>[C] Complement (Gain: 1.0):</b> Accessory/add-on (e.g. iPhone 13 -> phone case).</p>
+          <p style="margin-top:6px;"><b>[I] Irrelevant (Gain: 0.0):</b> Completely off-topic result.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: EDA -->
+    <div class="slide">
+      <div class="slide-tag">Exploratory Data Analysis</div>
+      <h2 class="slide-title">Empirical Dataset Scale & Class Balance</h2>
+      <div class="grid-4" style="margin-bottom:20px;">
+        <div class="card" style="text-align:center;">
+          <div class="card-stat">2.62M</div>
+          <p>Total Raw Judgments</p>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div class="card-stat">601,354</div>
+          <p>English Task 1 Rows</p>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div class="card-stat">29,844</div>
+          <p>Unique Customer Queries</p>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div class="card-stat">482,105</div>
+          <p>Catalog Products</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Key EDA Discoveries:</div>
+        <ul>
+          <li><b>ESCI Class Balance:</b> Exact (43.5%) and Substitute (35.1%) account for ~78.6% of candidates. Graded nDCG is critical.</li>
+          <li><b>Query Lengths:</b> Median query length is 3 words (90% &le; 5 words). Short queries cause vocabulary mismatch.</li>
+          <li><b>Catalog Titles:</b> &gt;99.9% of items have rich titles (mean ~15 words), providing high-density search signals.</li>
+          <li><b>Notebook:</b> Full EDA rendered in <code>notebooks/01_eda_and_data_inspection.ipynb</code>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Slide 4: Preprocessing -->
+    <div class="slide">
+      <div class="slide-tag">Pipeline Design</div>
+      <h2 class="slide-title">Text Preprocessing Pipeline (100% From Scratch)</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Pipeline Architecture:</div>
+          <p><b>1. HTML & Entity Cleaning:</b> Strips tags, decodes <code>&amp;amp;</code>, normalizes Unicode NFKD, lowercases.</p>
+          <p style="margin-top:10px;"><b>2. Alphanumeric Tokenizer:</b> Preserves product specs (e.g. <code>128gb</code>, <code>4k</code>, <code>g502</code>).</p>
+          <p style="margin-top:10px;"><b>3. Stop-Word Removal:</b> Prunes high-frequency noise while retaining product intent.</p>
+          <p style="margin-top:10px;"><b>4. Porter Stemming:</b> Reduces inflections (<code>running</code> -> <code>run</code>, <code>headphones</code> -> <code>headphon</code>).</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Real-World Transformation:</div>
+          <p style="color:var(--text-muted); font-size:0.85rem;">RAW INPUT:</p>
+          <p style="font-family:monospace; background:white; padding:8px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.85rem;">
+            &lt;p&gt;Women's &lt;b&gt;Running&lt;/b&gt; Shoes (Size 8.5) &amp;amp; Cushioned Sneakers!!!&lt;/p&gt;
+          </p>
+          <p style="color:var(--accent); font-size:0.85rem; margin-top:12px; font-weight:bold;">SCRATCH PROCESSED TOKENS:</p>
+          <p style="font-family:monospace; background:white; padding:8px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.85rem;">
+            ['women', 'run', 'shoe', 'size', '8.5', 'cushion', 'sneaker']
+          </p>
+          <p style="margin-top:10px; font-size:0.85rem; color:#15803d; font-weight:bold;">✔ 7/7 Unit Tests Passing in <code>tests/test_preprocessing.py</code></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: The 4 Models -->
+    <div class="slide">
+      <div class="slide-tag">Models</div>
+      <h2 class="slide-title">The Four Core Ranking Paradigms</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">1. TF-IDF (Vector Space Model)</div>
+          <p>Classical vector space retrieval using Term Frequency &times; Inverse Document Frequency. High-speed baseline measuring cosine angles between sparse vectors.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">2. BM25 (Okapi Probabilistic)</div>
+          <p>Probabilistic framework with term frequency saturation (<i>k1 = 1.5</i>) and document length normalization (<i>b = 0.75</i>). Gold-standard sparse baseline.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">3. Sentence Transformer (Dense)</div>
+          <p>Encodes queries and catalog into 384-dimensional dense vectors (<code>all-MiniLM-L6-v2</code>). Solves vocabulary mismatch by matching concept semantics.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">4. Hybrid (Reciprocal Rank Fusion)</div>
+          <p>RRF combines BM25 and Dense ranks: <code>RRF(d) = &sum; [ w / (60 + rank(d)) ]</code>. Eliminates score scale mismatch and achieves highest nDCG.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: Results -->
+    <div class="slide">
+      <div class="slide-tag">Quantitative Benchmark</div>
+      <h2 class="slide-title">Standardized Performance Comparison Table</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Ranking Model</th>
+            <th>Precision@10</th>
+            <th>Recall@10</th>
+            <th>MAP</th>
+            <th>Graded nDCG</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>TF-IDF</b> (Vector Space)</td>
+            <td>0.8364</td>
+            <td>0.5992</td>
+            <td>0.8804</td>
+            <td>0.7812</td>
+          </tr>
+          <tr>
+            <td><b>BM25</b> (Probabilistic Okapi)</td>
+            <td>0.8372</td>
+            <td>0.5994</td>
+            <td>0.8794</td>
+            <td>0.7815</td>
+          </tr>
+          <tr>
+            <td><b>Sentence Transformer</b> (Dense)</td>
+            <td><span class="best-badge">0.8516</span></td>
+            <td><span class="best-badge">0.6115</span></td>
+            <td><span class="best-badge">0.8932</span></td>
+            <td>0.7923</td>
+          </tr>
+          <tr>
+            <td><b>Hybrid (RRF)</b> (Sparse + Dense)</td>
+            <td>0.8480</td>
+            <td>0.6097</td>
+            <td>0.8896</td>
+            <td><span class="best-badge">0.7984</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="card" style="margin-top:20px;">
+        <p><b>Key Finding:</b> Hybrid RRF achieved the highest <b>nDCG (0.7984)</b>. Combining exact keyword matches with dense semantic understanding puts true Exact matches (E=3) at the very top rank.</p>
+      </div>
+    </div>
+
+    <!-- Slide 7: Precision-Recall Curves -->
+    <div class="slide">
+      <div class="slide-tag">Evaluation Curves</div>
+      <h2 class="slide-title">11-Point Interpolated Precision-Recall Curves</h2>
+      <div class="grid-2" style="align-items:center;">
+        <div>
+          <img src="/evaluation_results/precision_recall_curves.png" style="width:100%; border-radius:10px; border:1px solid var(--border);" alt="P-R Curves">
+        </div>
+        <div class="card">
+          <div class="card-title">Curve Analysis:</div>
+          <ul>
+            <li><b>High Precision Zone:</b> Dense Sentence Transformer sustains precision above 0.88 across low recall levels.</li>
+            <li><b>Mid-Recall Stability:</b> Hybrid RRF smoothly envelopes sparse and dense curves, preventing lexical drop-offs.</li>
+            <li><b>Convergence:</b> All models converge predictably as recall approaches 1.0, proving consistent retrieval stability.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 8: Architecture -->
+    <div class="slide">
+      <div class="slide-tag">System Architecture</div>
+      <h2 class="slide-title">Decoupled Production Architecture</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">⚡ FastAPI Backend</div>
+          <ul>
+            <li>Precomputed 384-dim embedding cache boots in <b>0.02s</b>.</li>
+            <li>Clean REST API endpoints: <code>/api/search</code>, <code>/api/compare</code>, <code>/api/metrics</code>.</li>
+            <li>Interactive OpenAPI Swagger documentation at <code>/docs</code>.</li>
+            <li>CORS enabled for seamless team frontend integration.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">🖥️ Interactive Search Web UI</div>
+          <ul>
+            <li>Live product search with instant model switcher.</li>
+            <li><b>Side-by-side 4-model comparison view</b> for arbitrary queries.</li>
+            <li>Live scratch-preprocessing inspection drawer.</li>
+            <li>Sub-second query latency (&lt; 300 ms).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 9: Conclusion -->
+    <div class="slide">
+      <div class="slide-tag">Conclusion</div>
+      <h2 class="slide-title">Summary & Deliverables Delivered</h2>
+      <div class="card">
+        <ul>
+          <li><b>Raw Ground-Truth Data:</b> Ingested authentic Amazon ESCI Shopping Queries dataset.</li>
+          <li><b>Comprehensive EDA:</b> Completed <code>notebooks/01_eda_and_data_inspection.ipynb</code> with distributions.</li>
+          <li><b>Scratch Preprocessing:</b> Custom cleaning, tokenization, stop-words, and Porter stemming.</li>
+          <li><b>4 Distinct IR Paradigms:</b> TF-IDF, BM25, Sentence Transformer, and Hybrid RRF.</li>
+          <li><b>Evaluation Standards:</b> Precision@10, Recall, MAP, nDCG, and PR curves.</li>
+          <li><b>Live Demo & API:</b> Running at <code>http://localhost:8000</code> and <code>/docs</code>.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Navigation Controls -->
+  <div class="controls">
+    <button class="btn-nav" id="prev-btn">◀ Previous</button>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span id="slide-num" style="font-size:0.9rem; font-weight:600;">Slide 1 / 9</span>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <button class="btn-nav" id="next-btn">Next ▶</button>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll(".slide");
+    let currentSlide = 0;
+
+    function showSlide(idx) {
+      slides[currentSlide].classList.remove("active");
+      currentSlide = (idx + slides.length) % slides.length;
+      slides[currentSlide].classList.add("active");
+
+      document.getElementById("slide-num").textContent = `Slide ${currentSlide + 1} / ${slides.length}`;
+      document.getElementById("progress-fill").style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+    }
+
+    document.getElementById("prev-btn").addEventListener("click", () => showSlide(currentSlide - 1));
+    document.getElementById("next-btn").addEventListener("click", () => showSlide(currentSlide + 1));
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " ") showSlide(currentSlide + 1);
+      if (e.key === "ArrowLeft") showSlide(currentSlide - 1);
+    });
+  </script>
+</body>
+</html>

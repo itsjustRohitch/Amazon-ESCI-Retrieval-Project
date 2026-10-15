@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon ESCI Product Search Engine</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <span>🛒</span>
+      <span>Amazon ESCI Search Engine</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn active" data-tab="tab-search">Live Search</button>
+      <button class="nav-btn" data-tab="tab-compare">Side-by-Side (All 4)</button>
+      <button class="nav-btn" data-tab="tab-eval">Evaluation & Curves</button>
+      <button class="nav-btn" data-tab="tab-eda">EDA & Stats</button>
+      <a href="/static/presentation.html" target="_blank" class="nav-btn" style="text-decoration:none;">📽️ Slide Deck</a>
+      <a href="/docs" target="_blank" class="api-link">⚡ Swagger API Docs</a>
+    </div>
+  </header>
+
+  <main class="container">
+    
+    <!-- Hero Banner -->
+    <div class="hero">
+      <h1>Information Retrieval Product Search</h1>
+      <p>Multi-Paradigm IR Benchmark: <b>TF-IDF</b>, <b>BM25</b>, <b>Dense Transformers</b>, and <b>Hybrid RRF</b></p>
+    </div>
+
+    <!-- TAB 1: LIVE SEARCH -->
+    <section id="tab-search" class="tab-view">
+      <div class="search-card">
+        <div class="search-input-group">
+          <input type="text" id="search-input" class="search-input" placeholder="Type a product search query (e.g. 'wireless bluetooth headphones', 'iphone 13 case')..." value="wireless bluetooth earbuds with microphone">
+          <button id="search-btn" class="btn-search">Search 🚀</button>
+        </div>
+
+        <div class="controls-row">
+          <div class="control-item">
+            <label for="model-select">Ranking Model:</label>
+            <select id="model-select" class="select-box">
+              <option value="hybrid" selected>Hybrid (RRF - Sparse + Dense)</option>
+              <option value="bm25">BM25 (Probabilistic Retrieval)</option>
+              <option value="dense">Sentence Transformer (MiniLM Embeddings)</option>
+              <option value="tfidf">TF-IDF (Vector Space Model)</option>
+            </select>
+          </div>
+
+          <div class="control-item">
+            <label for="topk-select">Cutoff (K):</label>
+            <select id="topk-select" class="select-box">
+              <option value="5">Top 5</option>
+              <option value="10" selected>Top 10</option>
+              <option value="15">Top 15</option>
+              <option value="20">Top 20</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sample-queries">
+          <span style="font-size: 0.85rem; font-weight: 700; color: #64748b;">Quick Examples:</span>
+          <span class="sample-pill">wireless bluetooth earbuds with microphone</span>
+          <span class="sample-pill">apple iphone 13 silicone case</span>
+          <span class="sample-pill">men breathable running shoes</span>
+          <span class="sample-pill">gaming mouse rgb high dpi</span>
+          <span class="sample-pill">stainless steel 2 slice toaster</span>
+        </div>
+      </div>
+
+      <!-- Preprocessing Pipeline Drawer -->
+      <div id="prep-drawer" class="prep-drawer" style="display: none;">
+        <div class="prep-title">
+          <span>🛠️</span>
+          <span>Scratch Text Preprocessing Breakdown:</span>
+        </div>
+        <div class="prep-grid">
+          <div class="prep-step">
+            <div class="prep-step-label">1. HTML Cleaned</div>
+            <div id="prep-cleaned" class="prep-step-value">-</div>
+          </div>
+          <div class="prep-step">
+            <div class="prep-step-label">2. Tokenized</div>
+            <div id="prep-tokenized" class="prep-step-value">-</div>
+          </div>
+          <div class="prep-step">
+            <div class="prep-step-label">3. Stopwords Removed</div>
+            <div id="prep-nostop" class="prep-step-value">-</div>
+          </div>
+          <div class="prep-step">
+            <div class="prep-step-label">4. Porter Stemmed</div>
+            <div id="prep-stemmed" class="prep-step-value">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Header & List -->
+      <div class="results-header">
+        <span id="count-badge" style="font-weight: 600; color: #334155;">Search Results</span>
+        <span id="latency-badge" class="latency-badge">⚡ 0.0 ms</span>
+      </div>
+
+      <div id="results-list"></div>
+    </section>
+
+    <!-- TAB 2: SIDE-BY-SIDE 4-MODEL COMPARISON -->
+    <section id="tab-compare" class="tab-view" style="display: none;">
+      <div class="search-card">
+        <div class="search-input-group">
+          <input type="text" id="compare-input" class="search-input" placeholder="Type a query to compare all 4 paradigms side-by-side..." value="smart cell phone 128gb">
+          <button id="compare-btn" class="btn-search">Compare ⚡</button>
+        </div>
+        <div style="font-size: 0.85rem; color: #64748b; display: flex; justify-content: space-between;">
+          <span>Evaluates TF-IDF, BM25, Sentence Transformer, and Hybrid RRF concurrently.</span>
+          <span id="compare-latency" style="font-weight: 600; color: #059669;"></span>
+        </div>
+      </div>
+
+      <div id="compare-grid" class="compare-grid"></div>
+    </section>
+
+    <!-- TAB 3: EVALUATION & PRECISION-RECALL CURVES -->
+    <section id="tab-eval" class="tab-view" style="display: none;">
+      <h2 style="font-size: 1.4rem; color: #1e1b4b; margin-bottom: 8px;">Standardized IR Performance Comparison</h2>
+      <p style="color: #64748b; margin-bottom: 20px;">Evaluated on representative test queries against ground-truth ESCI judgments.</p>
+
+      <div id="metrics-table-container"></div>
+
+      <div style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: var(--shadow);">
+        <h3 style="font-size: 1.1rem; color: #1e293b; margin-bottom: 12px; text-align: center;">11-Point Interpolated Precision-Recall Curves</h3>
+        <img src="/evaluation_results/precision_recall_curves.png" alt="Precision-Recall Curves" class="curve-img">
+      </div>
+    </section>
+
+    <!-- TAB 4: DATASET & EDA -->
+    <section id="tab-eda" class="tab-view" style="display: none;">
+      <h2 style="font-size: 1.4rem; color: #1e1b4b; margin-bottom: 8px;">Exploratory Data Analysis (EDA) Summary</h2>
+      <p style="color: #64748b; margin-bottom: 20px;">Dataset: Amazon ESCI (Shopping Queries Dataset) - Task 1 English</p>
+
+      <div id="eda-stats-container"></div>
+
+      <div style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: var(--shadow); line-height: 1.7;">
+        <h3 style="font-size: 1.1rem; color: #1e293b; margin-bottom: 10px;">Key Discoveries:</h3>
+        <ul>
+          <li><b>ESCI Graded Proportions:</b> Exact = 43.49%, Substitute = 35.12%, Irrelevant = 16.87%, Complement = 4.52%. Exact and Substitute form ~78.6% of returned products.</li>
+          <li><b>Query Characteristics:</b> Real customer queries are short (median 3 words, 90% $\le$ 5 words). Exact keyword models need dense embeddings to handle vocabulary mismatch.</li>
+          <li><b>Product Catalog Quality:</b> Over 99.9% of catalog items contain rich, informative titles (average ~15 words), making product titles the highest-signal field.</li>
+          <li><b>Dedicated Notebook:</b> View the pre-rendered plots and tables in <code>notebooks/01_eda_and_data_inspection.ipynb</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

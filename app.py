@@ -8,7 +8,7 @@ Features:
 - Live e-commerce search with 4 ranking paradigms:
   1. TF-IDF (Vector Space)
   2. BM25 (Probabilistic Sparse Retrieval)
-  3. Sentence Transformer (Dense Semantic Vectors)
+  3. Sentence Transformer (Dense Semantic Retrieval using 384-D Embeddings)
   4. Hybrid (Reciprocal Rank Fusion - RRF)
 - Side-by-Side 4-Model Comparison Mode for arbitrary queries.
 - Live inspection of raw vs. scratch-preprocessed tokens.

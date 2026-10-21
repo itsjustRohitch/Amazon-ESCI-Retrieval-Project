@@ -1,0 +1,42 @@
+{
+  "judgments": 20156,
+  "queries": 1000,
+  "dev_queries": 300,
+  "test_queries": 700,
+  "products": 19876,
+  "label_counts": {
+    "E": 8692,
+    "S": 7234,
+    "I": 3394,
+    "C": 836
+  },
+  "index": {
+    "documents": 19876,
+    "vocabulary": 30010,
+    "postings": 274924,
+    "avg_doc_len": 15.23,
+    "singleton_terms": 17245,
+    "longest_postings": 2654
+  },
+  "title_tokens_mean": 15.225498088146509,
+  "fit_seconds": {
+    "BM25": 6.605302095413208,
+    "TF-IDF": 6.957321405410767,
+    "Sentence Transformer (cached)": 1.6152284145355225
+  },
+  "latency_ms_per_query": {
+    "TF-IDF": 0.34194014285666136,
+    "BM25": 0.31083800000487827,
+    "Sentence Transformer": 13.143046999996711,
+    "Hybrid (RRF)": 14.214640571434368
+  },
+  "chosen": {
+    "bm25_k1": 0.6,
+    "bm25_b": 1.0,
+    "tfidf_variant": "log tf, idf",
+    "tfidf_sublinear": true,
+    "tfidf_idf": true,
+    "rrf_k": 10
+  },
+  "runtime_s": 217.01554679870605
+}

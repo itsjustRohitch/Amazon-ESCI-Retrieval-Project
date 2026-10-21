@@ -1,0 +1,701 @@
+query_id,query,n_words,oov_share,has_digit
+60,$1 first addition charizard not fake,6,0.0,True
+101,$50 gifts for men,4,0.0,True
+111,%100 silicone not clear,4,0.0,True
+117,''i am here for a good time not a log time'' sticker,12,0.0,False
+131,'forget me not i' 2 piece framed print,8,0.0,True
+185,(travel size) juillet has a gun perfume not a perfume,10,0.16666666666666666,False
+226,+outside weather station and not digital,6,0.0,False
+316,. frameless fixed tub door in silver frame without handle,10,0.0,False
+479,007 james bond the world is not enough,8,0.0,True
+491,013 nail color not gel,5,0.0,True
+531,05 tahoe side mirror not heated,6,0.0,True
+544,06 saturn ion fuel pump assembly without pump without pump,10,0.0,True
+553,06 trailblazer headlight without full grille bar,7,0.0,True
+568,08 chevy tahoe wheel not cover,6,0.0,True
+578,08 tundra chrome tailgate handle without camera,7,0.0,True
+599,0rgans only not piano for sale,6,0.3333333333333333,True
+600,0sxk ofrece fidget toys not expensive,6,0.4,True
+846,1 pack blue braiding hair pre stretched,7,0.0,True
+1039,1/16th scale gravity wagon without tractor,6,0.0,True
+1213,10 in tablets,3,0.0,True
+1246,10 lb fly fishing leader,5,0.0,True
+1310,10 succulent plants without plastic containers,6,0.0,True
+1335,"10"" table saw",3,0.0,True
+1612,10oz tervis cups without lid,5,0.0,True
+1634,10x10 white backdrop,3,0.0,True
+1730,11.5 x 15 inch diploma frame without mat,8,0.0,True
+1736,11/4 leather belt without buckle,5,0.0,True
+1738,110 arc welder without ground clamp or stinger,8,0.0,True
+1748,110 volt heating element without electric cord,7,0.0,True
+1816,12 hp engine,3,0.0,True
+1834,12 inch plate hangers for the wall,7,0.0,True
+1977,12v air conditioner,3,0.0,True
+2076,14 gallon trash can,4,0.0,True
+2236,16 inch pillow cover beige multipack,6,0.0,True
+2792,20 input mixer,3,0.0,True
+3044,24mm leather watch strap,4,0.0,True
+3356,3 in metal for face masks,6,0.0,True
+3387,3 mm pearl beads,4,0.0,True
+3752,36 by 96 door wood,5,0.0,True
+3795,365 shirt,2,0.0,True
+3940,3m scotch weld structural adhesive,5,0.0,True
+4035,4 bulb led vanity light,5,0.0,True
+4150,4.0 crank socket,3,0.0,True
+4163,40 cake pan,3,0.0,True
+4241,43 in tv,3,0.0,True
+4483,4” marine corps military mediallon,5,0.25,True
+4676,500 piece puzzle candy,4,0.0,True
+5022,65 mustang fog light,4,0.0,True
+5289,8 ply atv tires,4,0.0,True
+5297,8 speed shifter drop bar right,6,0.0,True
+5309,8.5 x 11 frame white,5,0.0,True
+5314,80 gal protein skimmer,4,0.0,True
+5495,900 global bowling ball bag,5,0.0,True
+5536,95 length grey block curtains,5,0.0,True
+5677,I want the burgundy hoodie jacket with the two big center pockets,12,0.0,False
+5948,a10 phone case,3,0.0,True
+6416,acrylic nail polish,3,0.0,False
+6433,acrylic toilet seat elongated,4,0.0,False
+6477,acudraw pro,2,0.0,False
+6639,adidas baby boy socks,4,0.0,False
+6676,adidas gym bag for women,5,0.0,False
+6769,adidas tech fit compression shorts men,6,0.0,False
+6895,adullt movies for women,4,0.0,False
+7726,alan jackson goapel records,4,0.25,False
+7752,alarm clock without snooze,4,0.0,False
+7910,alexander luria,2,0.0,False
+8142,all white boots for girls,5,0.0,False
+8384,altruist dermatologist face fluid,4,0.25,False
+9245,anjou coconut oil,3,0.0,False
+9358,ansi z87.1 safety glasses,4,0.0,True
+9388,anthem book ayn rand,4,0.0,False
+9506,anxiety pen,2,0.0,False
+9726,apple iphone 6 case with battery,6,0.0,True
+9989,aqua blue vinyl,3,0.0,False
+10193,arduino leonardo,2,0.0,False
+10298,arlo batteries 4 pack,4,0.0,True
+10611,as seen on tv,4,0.0,False
+10648,ashwaghanda extract,2,0.5,False
+10781,assorted pumpkins for decorating,4,0.0,False
+10979,atlas obscure,2,0.0,False
+10983,atlas straps,2,0.0,False
+11124,august smart lock pro 3rd generation,6,0.0,True
+11275,auto park sensor benzel,4,0.25,False
+11432,avengers books for kids 3-5,5,0.0,True
+11461,avent natural bottle caps,4,0.0,False
+11914,baby feeding spoon bpa free,5,0.0,False
+11915,baby feet,2,0.0,False
+12004,baby girls long sleeve flowers hoodie,6,0.0,False
+12030,baby jewelry for boys,4,0.0,False
+12051,baby long sleeve onesies,4,0.0,False
+12130,baby round playpen,3,0.0,False
+12220,baby stroller without car seat,5,0.0,False
+12535,bad wolves,2,0.0,False
+12581,bag insert with cup holder,5,0.0,False
+12665,baking stones for bread,4,0.0,False
+12742,ball ball birthday cake,4,0.0,False
+12884,bamboo jewelry box,3,0.0,False
+13498,bat,1,0.0,False
+14302,beard comb hot,3,0.0,False
+14579,bedhead pajamas asian print,4,0.25,False
+14654,beef jerky for dad,4,0.0,False
+14735,behritone,1,1.0,False
+14741,beige cape,2,0.0,False
+14834,belly band holster left handed for men,7,0.0,False
+14910,benchmade pocket knife replacement screws,5,0.0,False
+15158,best sellers magazines,3,0.0,False
+15194,best vitamins for women 30,5,0.0,True
+15213,bestway 15' pool pump hoses,5,0.0,True
+15307,beyblade metal fusion,3,0.0,False
+15573,big and tall track pants,5,0.0,False
+15610,big clear backpack for middle school boys,7,0.0,False
+15693,big smart tv,3,0.0,False
+15716,big&j deer attractant,3,0.0,False
+16305,black and white candy canes,5,0.0,False
+16447,black cube storage,3,0.0,False
+16652,black makeup vanity without mirror,5,0.0,False
+16698,black out window curtain,4,0.0,False
+16709,black panther watch for boys,5,0.0,False
+16753,black queen dress for women,5,0.0,False
+16851,black table for two,4,0.0,False
+16911,black white emerald wedding,4,0.0,False
+17150,blink home security 5 camera system outdoor,7,0.0,True
+17188,blocked christmas words,3,0.0,False
+17401,blue laffy taffy,3,0.0,False
+17462,blue sequins shorts,3,0.0,False
+17476,blue sneakers,2,0.0,False
+17689,blush ruffle sleeve dress,4,0.0,False
+17768,boardgames for 8 year olds,5,0.0,True
+17884,body bath moissturizer,3,0.3333333333333333,False
+17887,body brush with 5 attachments,5,0.0,True
+17908,body lotion for aging skin,5,0.0,False
+17940,body shorts for women,4,0.0,False
+18023,boho patio furniture,3,0.0,False
+18265,boneless beef chuck roast,4,0.0,False
+18324,book daya,2,0.0,False
+18453,boom audio harley davidson,4,0.0,False
+18485,boosted board,2,0.0,False
+18521,booties for toddlers girlsgirls platform sneakers,6,0.2,False
+18729,botas altama militares para hombre,5,0.2,False
+18986,bowl noodle soup hot and spicy,6,0.0,False
+19221,boys medium addidas,3,0.3333333333333333,False
+19267,boys shoes bungee shoelace,4,0.0,False
+19298,boys swim trunks without mesh lining,6,0.0,False
+19313,boys wallet,2,0.0,False
+19330,boys' equestrian sport boots,4,0.0,False
+19383,braces with names,3,0.0,False
+19451,brake calipers,2,0.0,False
+19533,braun 10 in one trimmer for men,7,0.0,True
+19536,braun folding led work light,5,0.0,False
+19797,briggs 5.5hp carburetor,3,0.0,True
+19962,brooks ravenna womens,3,0.0,False
+20052,brown flats for women,4,0.0,False
+20199,bts earrings,2,0.0,False
+20349,buffalo plaid baby pants,4,0.0,False
+20385,bug outdoor repellent,3,0.0,False
+20809,but plug for men,4,0.0,False
+20954,bxt markers pen,3,0.0,False
+22061,camo dresses for girls,4,0.0,False
+22164,camping dehumidifier air conditioner,4,0.0,False
+22413,canon 5d mark iv,4,0.0,True
+22491,canon t8i battery,3,0.0,True
+22533,canvas head for wigs,4,0.0,False
+22753,car key chain p,4,0.0,False
+22969,carburetor jets for 350cc,4,0.0,True
+23230,carlsons long beard xr choke 12 gauge,7,0.0,True
+23450,cartoon moon rings,3,0.0,False
+23631,casio piano keyboard for kids,5,0.0,False
+24026,cauliflower rice frozen organic,4,0.0,False
+24666,challenges for youtubers,3,0.0,False
+24697,champion hoodie boys,3,0.0,False
+24804,chanel lipstick long lasting,4,0.0,False
+25088,cheap jean jumper for woman,5,0.0,False
+25265,chelsea stadium soccer cards,4,0.0,False
+25315,cherry humps candy bar,4,0.25,False
+25329,chery brown,2,0.5,False
+25370,chevy 383 stroker kit,4,0.0,True
+25441,chicco car seat adjuster,4,0.0,False
+25612,childs play pin,3,0.0,False
+26098,christmas wrapping paper burgundy,4,0.0,False
+26201,chunky lace up heels,4,0.0,False
+26265,cif descaler,2,0.0,False
+26640,clayco case for iphone 8 plus,6,0.0,True
+26932,clit pump,2,0.0,False
+26949,clock hands only,3,0.0,False
+27084,cloud drop top frame guest book,6,0.0,False
+27086,cloud led light,3,0.0,False
+27311,cocodrilo de juguete,3,0.6666666666666666,False
+27324,coconut hot sauce,3,0.0,False
+27584,cold blue for metal,4,0.0,False
+27689,colgate kids electric toothbrush,4,0.0,False
+28205,company name patches,3,0.0,False
+28592,contentment journal rachel cruze,4,0.0,False
+28796,cool hoodies for men,4,0.0,False
+28947,copper knee brace,3,0.0,False
+29596,couple earmuffs,2,0.0,False
+29661,covergirl makeup foundation-440,3,0.3333333333333333,True
+29868,crank brothers pedals,3,0.0,False
+29952,cream v neck t shirt women,6,0.0,False
+30110,cricut for dummies,3,0.0,False
+30119,cricut maker tools,3,0.0,False
+30437,crystal light packets orange,4,0.0,False
+31153,cvt oil,2,0.0,False
+31454,dan bongino exonerated,3,0.0,False
+31483,dancer halloween costume,3,0.0,False
+31542,dare game,2,0.0,False
+31584,dark humor is like food not everyone gets it,9,0.0,False
+31694,david archuleta music,3,0.0,False
+31730,davinci panels,2,0.0,False
+31794,dazzling gold flapper adult costume,5,0.0,False
+32111,deep trunk,2,0.0,False
+32128,deer anatomy books,3,0.0,False
+32906,dia de los muertos bow tie,6,0.0,False
+33040,diaper organizer without handles,4,0.0,False
+33272,digtal storm,2,0.5,False
+33735,disinfecting wipes,2,0.0,False
+33987,dixit all versions,3,0.0,False
+34725,dometic foam filter,3,0.0,False
+34750,don pulle,2,0.0,False
+35072,dove powder deodorant for women,5,0.0,False
+35507,drift accessories,2,0.0,False
+35509,drift trike,2,0.0,False
+35637,drop in oven electric,4,0.0,False
+35707,dry herb vaporizer pen for smoking weed,7,0.0,False
+35714,dry pants 4x light dry,5,0.0,True
+35755,drywall sander dustless,3,0.0,False
+35762,drz400 rear brake light,4,0.0,True
+35766,ds games,2,0.0,False
+36100,dvd player with hdmi input,5,0.0,False
+36232,dyson hhair dryer,3,0.3333333333333333,False
+36274,e-z lok 400-m6,3,0.0,True
+36591,echo dot accessories,3,0.0,False
+36701,edge trimmer for men haircut,5,0.0,False
+37013,electric adult tricycle,3,0.0,False
+37043,electric cycle,2,0.0,False
+37100,electric motor mongose,3,0.3333333333333333,False
+37126,electric ride on vehicles for kids,6,0.0,False
+37312,elf inflatable,2,0.0,False
+37466,embroidery hoop without screw,4,0.0,False
+37534,eminem kamikaze,2,0.0,False
+37553,emoji foam sticker faces for small pumpkins,7,0.0,False
+37652,endgame,1,0.0,False
+37746,english version bible,3,0.0,False
+37749,engn shred,2,0.0,False
+37789,entertainment stand for tv up to 90,7,0.0,True
+38018,escape room board game,4,0.0,False
+38189,essential oil pets book,4,0.0,False
+38424,eucerin eye cream,3,0.0,False
+38791,extra chewy mints peppermint,4,0.0,False
+38818,extra large receiving blankets,4,0.0,False
+39052,f1 helmet,2,0.0,True
+39142,face eyebrow stick on hair,5,0.0,False
+39157,face make for 10,4,0.0,True
+39380,fake nose ring studs,4,0.0,False
+39495,falls dresses for women,4,0.0,False
+39720,fast rc cars 50 mph,5,0.0,True
+40117,fibre roller blinds for windows 72wide,6,0.4,True
+40615,first grade team shirts women,5,0.0,False
+40792,fissler magic smooth-edge can opener,5,0.0,False
+40905,fitover sunglasses,2,0.0,False
+41625,flux planetarium,2,0.0,False
+41628,fly argic,2,0.5,False
+41710,foam it green 602,4,0.3333333333333333,True
+41911,food freeze dryer machine not dehydrator,6,0.0,False
+42158,forget me not artificial flowers,5,0.0,False
+42422,frankie pickle book 2,4,0.0,True
+42449,free,1,0.0,False
+42459,free fantasy books for kindle,5,0.0,False
+42495,free time unlimited,3,0.0,False
+42502,free writing for kindle,4,0.0,False
+42586,frescolita,1,0.0,False
+42643,frieda barbie,2,0.5,False
+42713,frisbees,1,0.0,False
+43138,fullstar 7 in 1 chopper pro,6,0.0,True
+43159,fun gifts for women friends,5,0.0,False
+43760,g spotter wand for women,5,0.3333333333333333,False
+44680,ge gas range,3,0.0,False
+45199,gift for teen boys,4,0.0,False
+45349,gilmore monsters,2,0.0,False
+45426,girl dragon stuffed animal,4,0.0,False
+45545,girls bruins t shirt,4,0.0,False
+45575,girls dress for funeral,4,0.0,False
+45605,girls guitar,2,0.0,False
+46210,go pro camera,3,0.0,False
+46336,gold baby bliss shaver,4,0.0,False
+46435,gold letter beads for bracelets,5,0.0,False
+46589,golf mk4 side mirror,4,0.0,True
+47203,gray overalls men,3,0.0,False
+47272,green and yellow kids headphones,5,0.0,False
+47287,green blue pendent chain,4,0.0,False
+47321,green kangol hat,3,0.0,False
+47460,grey back pillow,3,0.0,False
+47506,grey sweater,2,0.0,False
+47606,grip 6 buckle,3,0.0,True
+47863,gucci handbags for women replicas,5,0.0,False
+48104,gw hidden camera,3,0.0,False
+48212,habanero hot sauce cholula organic,5,0.0,False
+48298,hair coloring brush,3,0.0,False
+48470,halberstam,1,1.0,False
+48553,halloween costumes for boys,4,0.0,False
+48570,halloween customs for boys ages 7 and 9 years old,10,0.0,True
+48590,halloween flare dress,3,0.0,False
+48893,handbags for women on sale clearance-yellow,6,0.25,False
+49153,happypills,1,1.0,False
+49210,hardrock vinyl,2,0.5,False
+49262,harley headlight 5.75”,3,0.0,True
+50025,heavy sweaters for women,4,0.0,False
+50375,hf radios,2,0.0,False
+50503,high low black rug,4,0.0,False
+50675,hinatab,1,1.0,False
+51121,honda z50 tail lense,4,0.0,True
+51199,hood for 29 gallon aquarium,5,0.0,True
+51230,hook on bed frame rails,5,0.0,False
+51386,hot combs for natural black hair,6,0.0,False
+51395,hot dots phonics,3,0.0,False
+51480,hot wheels jeep,3,0.0,False
+51766,hp speakers for desktop computer,5,0.0,False
+51922,hue play hdmi sync box,5,0.0,False
+52105,hunter proc,2,0.5,False
+52257,hydro flask with straw,4,0.0,False
+52443,i phone 7 protect,4,0.0,True
+52482,i was not the blossom,5,0.0,False
+52621,ice fishing tikt,3,0.3333333333333333,False
+52720,if the shoe fits,4,0.0,False
+52995,incredibles costume adult,3,0.0,False
+53207,infant winter got wear,4,0.0,False
+54107,iphone 11 screen protector,4,0.0,True
+54125,iphone 12 case not slippery,5,0.0,True
+54233,iphone 7 charger for broken charging,6,0.0,True
+54242,iphone 7 lanyard,3,0.0,True
+54381,iphone 8+ stick to glass case,6,0.0,True
+54515,iphone tmobile unlocked,3,0.0,False
+54544,iphone x case with card holder,6,0.0,False
+54558,iphone x refurbished,3,0.0,False
+54624,iphone xr unlocked,3,0.0,False
+54634,iphone xs bee case,4,0.0,False
+54668,iphone xs max wonder woman case,6,0.0,False
+54883,irobot mospedia,2,0.5,False
+55166,ivory flowers hair accessory for women,6,0.0,False
+55717,jeep hardtop,2,0.0,False
+55937,jewelry gifts for men,4,0.0,False
+56027,jjba earrings,2,0.0,False
+56046,jms580,1,1.0,True
+56108,joggers with belt loops,4,0.0,False
+56380,jp football,2,0.0,False
+57020,kate mack girls 16,4,0.0,True
+57122,kcup tea digestion,3,0.3333333333333333,False
+57331,keto jelly,2,0.0,False
+57446,key locks for kids,4,0.0,False
+57471,keyboard instrument 88 key,4,0.0,True
+57491,keychain battery iphone,3,0.0,False
+57689,kids big joe bean bag chair,6,0.0,False
+57707,kids boat,2,0.0,False
+57804,kids firefighter hat,3,0.0,False
+57919,kids novelty dog socks,4,0.0,False
+58002,kids sleep gummies without melatonin,5,0.0,False
+58094,kids winter clothing,3,0.0,False
+58178,kind is the new classy,5,0.0,False
+58223,kindle not ad supported,4,0.0,False
+58448,kiss press on nails medium length with glue,8,0.0,False
+58659,kitchen trash can without lid,5,0.0,False
+58914,knixteen period panties for teens,5,0.25,False
+58935,kobalt 80v battery,3,0.0,True
+58944,kobe bryant socks,3,0.3333333333333333,False
+59548,ladies 9 wood golf club,5,0.0,True
+60021,large chicken coop for 5 chickens,6,0.0,True
+60493,lawn mower trailer tires and wheels 5/8 bearings,8,0.0,True
+61150,leg length jackets for women,5,0.0,False
+61199,leggings with pockets not high waisted,6,0.0,False
+61590,lepard apple watch band nylon,5,0.2,False
+61798,lg aristo 3 phone case wallet,6,0.0,True
+61830,lg internal 24x super multi with m-disc support dvd burner,10,0.0,True
+62190,lifetime leather belt bag,4,0.0,False
+62195,lifevac choking device,3,0.0,False
+62477,lightweight makeup organizer,3,0.0,False
+62809,liquid calcium without d3,4,0.0,True
+63008,little tykes 3 in 1 activity walker,7,0.25,True
+63184,lobster clasp 20mm,3,0.0,True
+63450,long distance running shoes women,5,0.0,False
+63481,long led light strip,4,0.0,False
+63499,long overnight pads for women heavy flow without wings,9,0.0,False
+63536,long sleeve collared shirts for men regular fit,8,0.0,False
+63762,lostisy women wedges shoes splicing casual comfy sandals,8,0.125,False
+63933,low fat,2,0.0,False
+63954,low profile bed frame full,5,0.0,False
+64286,lung compressor,2,0.0,False
+64296,lus brand hair products curls,5,0.0,False
+64406,lysol to go spray travel size,6,0.0,False
+64786,magic botanical hair dressing,4,0.0,False
+64865,magnet balls 5mm,3,0.0,True
+64896,magnetic brown eyeliner,3,0.0,False
+65073,major payne dvd,3,0.0,False
+65320,mam sippy cups nipples,4,0.0,False
+65395,mandalorian patriot shirt,3,0.0,False
+65894,marks mandala,2,0.0,False
+65904,maroon dress for toddler girls,5,0.0,False
+66876,meditation,1,0.0,False
+66956,meggan watterson,2,1.0,False
+67388,"men, wide, casual ratchet belt",5,0.0,False
+67561,mens deodorant sample size,4,0.0,False
+67679,mens insulated flannel shirts,4,0.0,False
+67707,mens leather sneakers,3,0.0,False
+67731,mens lotion for dry skin,5,0.0,False
+67954,mens t-rex no like push ups t-shirts,7,0.0,False
+68038,mens white graphic t-shirts,4,0.0,False
+68351,metal brush long handle,4,0.0,False
+68381,metal epoxy stirrer,3,0.0,False
+68639,michael j fox,3,0.0,False
+68756,micro crimp removal tool,4,0.0,False
+68790,micro usb for gaming,4,0.0,False
+69157,milo boots for dogs,4,0.0,False
+69281,minglife led strip lights 5m,5,0.0,True
+69313,mini bike 196cc,3,0.0,True
+69736,mirror fireplace electric,3,0.0,False
+69739,mirror lifht with tv,4,0.3333333333333333,False
+69766,miskets snacks,2,0.5,False
+69800,mister hose,2,0.0,False
+69835,mity rain mini silicone pop molds,6,0.0,False
+69915,mmpr boom,2,0.5,False
+69959,mobstub crossbody bag,3,0.3333333333333333,False
+70286,mom jeans high waisted vintage,5,0.0,False
+70688,morph suit alien adult,4,0.0,False
+70819,motion bulb socket short daylight,5,0.0,False
+71101,mouthguard toothbrush for adults,4,0.0,False
+71264,mrs fletcher,2,0.0,False
+71678,music caravan,2,0.0,False
+71743,mustard tie,2,0.0,False
+71866,my name necklace,3,0.0,False
+72167,nano legacy,2,0.0,False
+72374,natural sleep aids without melatonin,5,0.0,False
+72663,neck pillow case cover,4,0.0,False
+72814,neon shimmer sequin fabric,4,0.0,False
+72915,nesoresso vertuoline pods,3,0.3333333333333333,False
+72943,nest protect 3rd generation,4,0.0,True
+72963,net prowler cabling and network tester,6,0.0,False
+73061,new american standard bible,4,0.0,False
+73080,new balance black cross trainer,5,0.0,False
+74400,noschelectric ranges for kitchen,4,0.3333333333333333,False
+74548,novacide,1,1.0,False
+74620,nude heel sandal,3,0.0,False
+74765,nursing medication cards pocket,4,0.0,False
+74975,oakley valve,2,0.0,False
+75205,office staples,2,0.0,False
+75244,oh boy baby bag,4,0.0,False
+75393,old lady costume for kids,5,0.0,False
+75429,oled monitor 4k,3,0.0,True
+75779,oompa loompa costume kids,4,0.0,False
+76098,organic cotton baby clothes,4,0.0,False
+76118,organic exfoliating face wipes,4,0.0,False
+76418,otome games,2,0.0,False
+76421,otoscopes for nurses,3,0.0,False
+76775,outside playhouse for girls,4,0.0,False
+76923,owl,1,0.0,False
+77978,passport holder stamps,3,0.0,False
+78004,pastel earings,2,0.0,False
+78144,patriot power cell,3,0.0,False
+78226,paw patrol everest,3,0.0,False
+78397,pea not cups,3,0.0,False
+78574,peg perego mon amour,4,0.0,False
+79296,peter ustinov,2,0.5,False
+79637,photo eye sensor for outdoor lights,6,0.0,False
+79685,physce,1,1.0,False
+80170,pink boxers for men,4,0.0,False
+80264,pink mens pajama set,4,0.0,False
+80345,pink tweezers,2,0.0,False
+80371,pinney adult xl,3,0.3333333333333333,False
+80498,pirate light fixture,3,0.0,False
+80664,pizza bricks for oven,4,0.0,False
+81034,plastic dessert bowls footed,4,0.0,False
+81127,plastic whisk,2,0.0,False
+81306,playstation 1,2,0.0,True
+81308,playstation 2 games,3,0.0,True
+81545,plus size pants rompers for women,6,0.0,False
+81664,pocket planner without dates,4,0.0,False
+81765,pokemon figures mini,3,0.0,False
+82290,poppies,1,0.0,False
+82314,popular 5yr old boys toys,5,0.2,True
+82338,porch shades outdoor roll up,5,0.0,False
+82390,portable ac without window vent,5,0.0,False
+82571,porter cable thickness planer,4,0.0,False
+82910,power tool bench,3,0.0,False
+82959,powerstep protech classic plus pro,5,0.0,False
+82977,prach lift leggings,3,0.3333333333333333,False
+83231,pretty unicorn princess met mermaid make up for halloween,9,0.0,False
+83386,princess ten,2,0.0,False
+83479,private property not for sale,5,0.0,False
+83910,ps4 capture card,3,0.0,True
+84537,purple bmx saddle,3,0.0,False
+84541,purple camo jacket,3,0.0,False
+84624,purple stripe microfiber pillow shams,5,0.0,False
+84863,quadrafire baffle,2,0.0,False
+84891,quartz nail 14mm,3,0.0,True
+84974,queen size bed spreads not comforters,6,0.0,False
+85235,rad robots for boys,4,0.0,False
+85327,rage crossbow x 125 grain broadhead,6,0.0,True
+85367,rain guage replacement tubes plastic,5,0.2,False
+85767,ray torres,2,0.0,False
+85798,razer headset without mic,4,0.0,False
+86015,realtree fleece fabric,3,0.0,False
+86103,receivers 7.1 channel,3,0.0,True
+86262,red and white tennis skirt,5,0.0,False
+86327,red dead redemption 2 xbox one,6,0.0,True
+86336,red dot sight sightmark,4,0.0,False
+86431,red notebook wide ruled,4,0.0,False
+86483,red skull corset,3,0.0,False
+86565,redi blinds for windows,4,0.0,False
+86580,redmi 5 back cover,4,0.0,True
+87048,remove stain from bath tub,5,0.0,False
+87060,renaissance costume women,3,0.0,False
+87132,replica dildo,2,0.0,False
+87134,replicade insert coin keychain,4,0.0,False
+87202,resin gloss varnish,3,0.0,False
+87407,reverse card,2,0.0,False
+87543,rib protector under armour youth,5,0.0,False
+87591,rick flair sunglasses,3,0.3333333333333333,False
+87678,rii wireles mini keyboard,4,0.25,False
+87767,ring video doorbell 2 pro,5,0.0,True
+87918,roach bait traps,3,0.0,False
+87937,roast chicken chips,3,0.0,False
+88061,rock shot glasses,3,0.0,False
+88110,rockshocks front fork,3,0.3333333333333333,False
+88189,rog strix ram,3,0.0,False
+88445,room music system stick with bluetooth,6,0.0,False
+88677,rotary switch knob,3,0.0,False
+88710,rough wood slide round,4,0.0,False
+88826,rowenta professional iron,3,0.0,False
+88857,royal blue gel polish,4,0.0,False
+88861,royal blue necklace,3,0.0,False
+89016,ruby glasses palstic,3,0.3333333333333333,False
+89094,ruger sr22 accessories,3,0.0,True
+89399,ryobi flashlight,2,0.0,False
+89678,sagami original 001,3,0.3333333333333333,True
+90035,samsung galaxy a10 e yellow silicon case,7,0.0,True
+90064,samsung galaxy j3 emerge,4,0.0,True
+90246,samsung q80r,2,0.5,True
+90261,samsung s10+ case,3,0.0,True
+90310,samsung stove knobs,3,0.0,False
+90390,sand and fog,3,0.0,False
+90444,sandisk 2 in 1 usb,5,0.0,True
+90514,santa hat dog medium,4,0.0,False
+90930,school girl knee high socks for women,7,0.0,False
+90948,schoolmaskpack for kids,3,0.0,False
+91015,scobuty hair scissors,3,0.3333333333333333,False
+91140,screen doors roll up,4,0.0,False
+91267,sdi to usb blackmagic,4,0.0,False
+91317,seagate game drive for xbox one,6,0.0,False
+91490,security cameras without wifi for homes,6,0.0,False
+91504,security without obscurity,3,0.0,False
+91813,seresto flea collar small dog,5,0.0,False
+92123,sexy toystory for couple,4,0.3333333333333333,False
+92341,shavers for men,3,0.0,False
+92438,sheet protectors 8.5 x 11 no holes,7,0.0,True
+92469,shelf containers,2,0.0,False
+92565,shimano gear cable,3,0.0,False
+92606,shipping boxes large,3,0.0,False
+92763,shoes vince,2,0.0,False
+93035,shredded silver paper,3,0.0,False
+93253,silicone bongs and water pipes,5,0.0,False
+93474,silver and lavender blackout curtains,5,0.0,False
+93644,simple human g bags,4,0.0,False
+93654,simple modern straw lid water bottle,6,0.0,False
+93758,sink caddy for single sink,5,0.0,False
+93784,sip character,2,0.0,False
+93944,skateboard shoes for kids,4,0.0,False
+94004,skeleton watches for men,4,0.0,False
+94132,skinny fit super youth collagen,5,0.0,False
+94265,slarm window sensor,3,0.3333333333333333,False
+94320,sleeping bag wide,3,0.0,False
+94459,slimm plug power strip,4,0.25,False
+94471,sling floral print sling casual sleeveless maxi dress,8,0.0,False
+94606,small blanket bag,3,0.0,False
+94648,small christmas goodie boxes bulk,5,0.0,False
+94660,small comfortable chair,3,0.0,False
+94688,small dog brush for yorkie,5,0.25,False
+94747,small gun back pack,4,0.0,False
+94873,small res papaer boats,4,0.25,False
+94889,small scedule book,3,0.3333333333333333,False
+95116,smartthings hub,2,0.0,False
+95279,snake tank,2,0.0,False
+95654,soda stream co2 cartridges,4,0.0,True
+95955,solonas patch,2,0.5,False
+96017,sonic hedgehog hoodie for boys,5,0.0,False
+96650,speedo american flag,3,0.0,False
+96707,spice jars drawer,3,0.0,False
+97153,spy camera without wifi,4,0.0,False
+97374,stackable weights dumbbells set,4,0.0,False
+97417,stainless steel bar pulls for cabinets 3,7,0.0,True
+97451,stainless steel stock pot,4,0.0,False
+97572,stanley fatmax 140w power inverter with usb,7,0.0,True
+97755,starmark bob a lot large,5,0.0,False
+97883,steel shredded af fat burner pills,6,0.0,False
+97919,steering wheel cover for women,5,0.0,False
+98222,stocking stuffers for adults under 10,6,0.0,True
+98385,straight bong,2,0.0,False
+98399,straight teeth without braces,4,0.0,False
+98467,strathmore sketchbook smooth brist,4,0.25,False
+98668,student prime membership,3,0.0,False
+98968,sugar container,2,0.0,False
+99139,sun flowers for planting,4,0.0,False
+99167,sun shaped alarm clock,4,0.0,False
+99273,sunshade for scope,3,0.0,False
+99356,super thin usb thumb drive,5,0.0,False
+99365,supercharger kit,2,0.0,False
+99631,swann 4 camera jack,4,0.0,True
+99788,swiffer xl wet pads,4,0.0,False
+100331,tactical assault gear retention,4,0.0,False
+100414,tailgate grill,2,0.0,False
+100447,takini swimsuits for women,4,0.3333333333333333,False
+100568,tan jeans women high waisted,5,0.0,False
+100597,tangent lost the,3,0.0,False
+100615,tank top body suit,4,0.0,False
+100618,tank top plus size women,5,0.0,False
+100739,tara west store,3,0.0,False
+100911,tball set,2,0.0,False
+101201,teen boy watch,3,0.0,False
+101529,teraflex high angle cv joint,5,0.0,False
+101868,the bone collector book,4,0.0,False
+101989,the fork the witch and the worm book,8,0.0,False
+102150,the little seagull handbook 3rd edition,6,0.0,True
+102580,thermal gloves,2,0.0,False
+102605,thermo switch temperature,3,0.0,False
+102628,thermos square,2,0.0,False
+102751,thinking head figurine,3,0.0,False
+102833,"thor #2, vol. 3",4,0.0,True
+103031,tidy die,2,0.0,False
+103089,tifosi swank sunglasses women,4,0.0,False
+103090,tig welder,2,0.0,False
+103311,tiny cute t rex necklace,5,0.0,False
+103397,tissa long bottle cleaning brush,5,0.0,False
+103447,titleist pro v1 golf balls aaaaa,6,0.0,True
+103700,toddler insoles,2,0.0,False
+103722,toddler night gowns,3,0.0,False
+104192,top max,2,0.0,False
+104485,toxozers,1,0.0,False
+104579,toyota camry le 09 monroe shocks front,7,0.0,True
+104658,toys under 5 dollars for boys,6,0.0,True
+104749,tragus piercing jewelry,3,0.0,False
+104858,trans jansport shady,3,0.0,False
+105261,triggered donald trump jr,4,0.0,False
+105376,tronics dog,2,0.0,False
+105740,turbo dive minion,3,0.0,False
+105857,tutu supplies,2,0.0,False
+105910,tv for cars,3,0.0,False
+105914,tv hearing aid devices wireless,5,0.0,False
+106036,twilight book set,3,0.0,False
+106813,unicorn hp chrome keyboard cover,5,0.0,False
+106842,unicorn time teacher watch,4,0.0,False
+106890,unique masquerade mask for men,5,0.0,False
+106937,universal eye bottle mount,4,0.0,False
+107020,unstable unicorns,2,0.0,False
+107042,up mini 2 3d printer,5,0.0,True
+107048,upenn hat,2,0.0,False
+107077,upright infant seat,3,0.0,False
+107555,utsumi 299,2,0.0,True
+108181,veniasa yoga mat,3,0.3333333333333333,False
+108560,vida charging station,3,0.0,False
+108561,vida slim tejocote,3,0.0,False
+108848,viper exhaust,2,0.0,False
+109020,vivien leigh,2,0.0,False
+109104,volcano weed vaporizer,3,0.0,False
+109739,warner opera,2,0.0,False
+109846,watch the game not your phone tshirt,7,0.0,False
+110355,weaver high ring 30mm,4,0.0,True
+110515,weeds control without poisons,4,0.0,False
+110849,where the crawdads sing by delia owens,7,0.0,False
+110850,where the red fern grows,5,0.0,False
+111001,white carbon paper,3,0.0,False
+111093,white elephant gifts under 20 funny,6,0.0,True
+111167,white lace tshirt juniors,4,0.0,False
+111184,white long table,3,0.0,False
+111191,white magnetic knife holder,4,0.0,False
+111364,white tights for women,4,0.0,False
+111876,windows tablet with keyboard,4,0.0,False
+111893,wine,1,0.0,False
+111914,wine fridge 15 inch wide dual zone built in,9,0.0,True
+112042,winter skirts for women,4,0.0,False
+112403,woman ski pants,3,0.0,False
+112716,women's canvas slip on sneakers,5,0.0,False
+112718,women's christmas dresses,3,0.0,False
+112744,women's jewelry rings+dinner rings,4,0.0,False
+112839,womens belted cardigan,3,0.0,False
+112911,womens clearance sale clothing under 10,6,0.0,True
+112973,womens faith tee shirt,4,0.0,False
+113106,womens naughty sheriff costume,4,0.0,False
+113125,womens office tops and blouses,5,0.0,False
+113321,womens sweatshirts without hoods,4,0.0,False
+113331,womens tall black boots size 12,6,0.0,True
+113393,womens wide cowgirl boots,4,0.0,False
+113502,wood design fabric,3,0.0,False
+113522,wood handle induction pan,4,0.0,False
+113561,wood slat bed frame,4,0.0,False
+113564,wood small box with drawers,5,0.0,False
+113679,wooden serving trays with handles extra large,7,0.0,False
+114760,yaqin 300b,2,1.0,True
+114814,yellow 2 piece bikini for women,6,0.0,True
+114815,yellow and black dresses for women,6,0.0,False
+114919,yellowstone on prime video,4,0.0,False
+115022,yoga base board,3,0.0,False
+115171,youth bike boys 8-14,4,0.25,True
+115530,zara for women,3,0.0,False
+115952,سماعة gaming pc,3,0.0,False

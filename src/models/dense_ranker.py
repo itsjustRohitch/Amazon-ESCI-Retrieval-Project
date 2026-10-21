@@ -18,6 +18,8 @@ from src.preprocessing import clean_text
 class DenseRanker:
     """
     Dense Semantic Vector Retriever powered by Sentence Transformers.
+
+    Uses all-MiniLM-L6-v2 embeddings (384 dimensions).
     """
 
     def __init__(
@@ -30,9 +32,9 @@ class DenseRanker:
         self.model = SentenceTransformer(self.model_name, device=self.device)
 
         self.doc_embeddings: Optional[np.ndarray] = None
+        self.is_fitted: bool = False
         self.product_ids: List[str] = []
         self.pid_to_idx: Dict[str, int] = {}
-        self.is_fitted: bool = False
 
     def fit(
         self,
@@ -50,12 +52,15 @@ class DenseRanker:
             batch_size (int): Encoding batch size.
             show_progress_bar (bool): Whether to display progress during embedding.
         """
-        assert len(corpus) == len(product_ids), "Corpus and product_ids must have identical length."
+        assert len(corpus) == len(product_ids), "Corpus and product_ids must have the same length."
         self.product_ids = list(product_ids)
-        self.pid_to_idx = {pid: i for i, pid in enumerate(self.product_ids)}
+        self.pid_to_idx = {
+            pid: i for i, 
+            pid in enumerate(self.product_ids)
+        }
 
         # Clean text for transformer encoding (natural word order, no stemming)
-        cleaned_corpus = [clean_text(doc) for doc in corpus]
+        cleaned_corpus: List[str] = [clean_text(doc) for doc in corpus]
 
         # Compute normalized embeddings so dot-product equals cosine similarity
         self.doc_embeddings = self.model.encode(
@@ -91,7 +96,7 @@ class DenseRanker:
         Returns:
             List[Tuple[str, float]]: List of (product_id, cosine_similarity) sorted descending.
         """
-        if not self.is_fitted or self.doc_embeddings is None:
+        if self.doc_embeddings is None or not self.is_fitted:
             raise RuntimeError("DenseRanker must be fitted before ranking.")
 
         cleaned_q = clean_text(query)
@@ -101,7 +106,7 @@ class DenseRanker:
             convert_to_numpy=True
         )[0]
 
-        # Inner product of normalized vectors = Cosine Similarity
+        # Since embeddings are L2-normalized, dot product equals cosine similarity
         scores = np.dot(self.doc_embeddings, q_emb)
         top_indices = np.argsort(scores)[::-1][:top_k]
 

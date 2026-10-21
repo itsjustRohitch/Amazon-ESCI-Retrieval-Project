@@ -1,107 +1,103 @@
 """
 src/models/bm25_ranker.py
 -------------------------
-Model 2: BM25 (Best Matching 25) Probabilistic Ranking Framework.
+Model 2: Okapi BM25, scored directly over our inverted index.
 
-Implements Okapi BM25 with term frequency saturation (k1) and document length normalization (b).
-Integrates seamlessly with our scratch-built text preprocessing pipeline.
+    idf(t)      = ln(1 + (N - df_t + 0.5) / (df_t + 0.5))
+    score(q, d) = sum_{t in q} idf(t) * f_td * (k1 + 1)
+                                     / (f_td + k1 * (1 - b + b * |d| / avgdl))
+
+The "1 +" inside the log (Lucene's variant) keeps idf positive, so a term that
+appears in more than half of the catalog still adds a small amount instead of
+pushing the score down, which happens with the original Robertson idf.
+
+k1 controls how quickly repeated terms saturate, b controls how strongly long
+titles are penalised. Both are tuned on the dev queries in run_evaluation.py.
 """
 
-from typing import List, Tuple, Dict, Optional
+from collections import Counter
+from typing import Callable, Dict, List, Optional, Tuple
+
 import numpy as np
-from rank_bm25 import BM25Okapi
-from src.preprocessing import preprocess_text
+
+from src.indexing import InvertedIndex, default_analyzer
 
 
 class BM25Ranker:
-    """
-    Probabilistic Okapi BM25 retrieval model for e-commerce search.
-    """
 
-    def __init__(self, k1: float = 1.5, b: float = 0.75, apply_stemming: bool = True):
+    def __init__(
+        self,
+        k1: float = 1.2,
+        b: float = 0.75,
+        analyzer: Optional[Callable[[str], List[str]]] = None,
+    ):
         self.k1 = k1
         self.b = b
-        self.apply_stemming = apply_stemming
-        self.bm25: Optional[BM25Okapi] = None
+        self.analyzer = analyzer or default_analyzer
+        self.index: Optional[InvertedIndex] = None
+        self.idf: Dict[str, float] = {}
         self.product_ids: List[str] = []
         self.pid_to_idx: Dict[str, int] = {}
-        self.is_fitted: bool = False
+        self.is_fitted = False
 
     def fit(self, corpus: List[str], product_ids: List[str]) -> "BM25Ranker":
-        """
-        Tokenize the product catalog using our preprocessing pipeline and build the BM25 index.
-
-        Args:
-            corpus (List[str]): List of product titles or catalog descriptions.
-            product_ids (List[str]): Matching product IDs.
-        """
-        assert len(corpus) == len(product_ids), "Corpus and product_ids must have identical length."
+        assert len(corpus) == len(product_ids), "corpus and product_ids differ in length"
         self.product_ids = list(product_ids)
         self.pid_to_idx = {pid: i for i, pid in enumerate(self.product_ids)}
-
-        # Preprocess each catalog item into token lists
-        tokenized_corpus = [
-            preprocess_text(text, apply_stemming=self.apply_stemming, return_tokens=True)
-            for text in corpus
-        ]
-
-        self.bm25 = BM25Okapi(tokenized_corpus, k1=self.k1, b=self.b)
+        self.index = InvertedIndex(self.analyzer).build(corpus)
+        n = self.index.num_docs
+        self.idf = {t: float(np.log(1.0 + (n - df + 0.5) / (df + 0.5)))
+                    for t, df in self.index.df.items()}
         self.is_fitted = True
         return self
 
-    def rank(self, query: str, top_k: int = 10) -> List[Tuple[str, float]]:
-        """
-        Retrieve top-K products ranked by BM25 probabilistic score.
+    def set_params(self, k1: float, b: float) -> "BM25Ranker":
+        # k1 and b are only used at query time, so the index can be reused while tuning
+        self.k1, self.b = k1, b
+        return self
 
-        Args:
-            query (str): Raw user search query.
-            top_k (int): Number of top results to return.
+    def _term_scores(self, term: str) -> Tuple[np.ndarray, np.ndarray]:
+        ids, tfs = self.index.get(term)
+        norm = self.k1 * (1.0 - self.b + self.b * self.index.doc_len[ids] / self.index.avg_doc_len)
+        return ids, self.idf[term] * tfs * (self.k1 + 1.0) / (tfs + norm)
 
-        Returns:
-            List[Tuple[str, float]]: List of (product_id, bm25_score) sorted descending.
-        """
-        if not self.is_fitted or self.bm25 is None:
+    def score_all(self, query: str) -> np.ndarray:
+        if not self.is_fitted:
             raise RuntimeError("BM25Ranker must be fitted before ranking.")
+        scores = np.zeros(self.index.num_docs, dtype=np.float64)
+        # a repeated query term counts once per occurrence, as in the original formula
+        for term, qtf in Counter(self.analyzer(query)).items():
+            if term in self.idf:
+                ids, contrib = self._term_scores(term)
+                scores[ids] += qtf * contrib
+        return scores
 
-        q_tokens = preprocess_text(query, apply_stemming=self.apply_stemming, return_tokens=True)
-        if not q_tokens:
-            return [(pid, 0.0) for pid in self.product_ids[:top_k]]
-
-        scores = self.bm25.get_scores(q_tokens)
-        top_indices = np.argsort(scores)[::-1][:top_k]
-
-        results = [(self.product_ids[idx], float(scores[idx])) for idx in top_indices]
-        return results
+    def rank(self, query: str, top_k: int = 10) -> List[Tuple[str, float]]:
+        scores = self.score_all(query)
+        k = min(top_k, len(scores))
+        top = np.argpartition(-scores, k - 1)[:k]
+        top = top[np.argsort(-scores[top], kind="stable")]
+        return [(self.product_ids[i], float(scores[i])) for i in top]
 
     def score_candidates(self, query: str, candidate_ids: List[str]) -> List[Tuple[str, float]]:
-        """
-        Score a specific candidate subset of products for query-level benchmark evaluation.
+        scores = self.score_all(query)
+        out = [(pid, float(scores[self.pid_to_idx[pid]]) if pid in self.pid_to_idx else 0.0)
+               for pid in candidate_ids]
+        out.sort(key=lambda x: x[1], reverse=True)
+        return out
 
-        Args:
-            query (str): User query.
-            candidate_ids (List[str]): List of candidate product IDs to rank.
-
-        Returns:
-            List[Tuple[str, float]]: Ranked candidate pairs (product_id, score).
-        """
-        if not self.is_fitted or self.bm25 is None:
-            raise RuntimeError("BM25Ranker must be fitted before scoring.")
-
-        q_tokens = preprocess_text(query, apply_stemming=self.apply_stemming, return_tokens=True)
-        if not q_tokens:
-            return [(pid, 0.0) for pid in candidate_ids]
-
-        all_scores = self.bm25.get_scores(q_tokens)
-        results = []
-        for pid in candidate_ids:
-            if pid in self.pid_to_idx:
-                idx = self.pid_to_idx[pid]
-                results.append((pid, float(all_scores[idx])))
-            else:
-                results.append((pid, 0.0))
-
-        results.sort(key=lambda x: x[1], reverse=True)
-        return results
+    def explain(self, query: str, product_id: str) -> Dict[str, float]:
+        """BM25 contribution of each query term for one product (used by the UI)."""
+        d = self.pid_to_idx[product_id]
+        out = {}
+        for term, qtf in Counter(self.analyzer(query)).items():
+            if term not in self.idf:
+                out[term] = 0.0
+                continue
+            ids, contrib = self._term_scores(term)
+            pos = np.searchsorted(ids, d)
+            out[term] = float(qtf * contrib[pos]) if pos < len(ids) and ids[pos] == d else 0.0
+        return out
 
 
 if __name__ == "__main__":
@@ -110,16 +106,8 @@ if __name__ == "__main__":
         "Samsung Galaxy S22 5G Android Smartphone 128GB Phantom Black",
         "Apple iPhone 13 Protective Silicone Case with MagSafe - Chalk Pink",
         "Anker USB-C to Lightning Fast Charging Cable for iPhone",
-        "Sony WH-1000XM4 Wireless Noise-Canceling Overhead Headphones",
-        "Men's Breathable Mesh Running Shoes Non-Slip Athletic Sneakers"
     ]
-    pids = ["B001", "B002", "B003", "B004", "B005", "B006"]
-
-    ranker = BM25Ranker()
-    ranker.fit(catalog, pids)
-
-    test_q = "iphone 13 pro"
-    top_results = ranker.rank(test_q, top_k=3)
-    print(f"BM25 Query: '{test_q}'")
-    for rank, (pid, score) in enumerate(top_results, 1):
-        print(f"  Rank {rank}: Product {pid} | BM25 Score: {score:.4f} | Title: {catalog[pids.index(pid)]}")
+    pids = ["B001", "B002", "B003", "B004"]
+    ranker = BM25Ranker().fit(catalog, pids)
+    for pid, s in ranker.rank("iphone 13 pro", top_k=3):
+        print(f"{pid}  {s:.4f}  {ranker.explain('iphone 13 pro', pid)}")

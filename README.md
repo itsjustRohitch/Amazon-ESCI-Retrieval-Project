@@ -1,122 +1,194 @@
-# Project 14: Product Search using Amazon ESCI
-> **Standardized Information Retrieval Pipeline & Multi-Paradigm Benchmark**
+# Product Search on Amazon ESCI
 
-Built as part of the Information Retrieval (IR) curriculum under the **Unified Project Template Structure**, evaluating four distinct ranking paradigms on the real-world **Amazon ESCI (Shopping Queries) Dataset**.
+Project 14 for the Information Retrieval course. We rank Amazon products for shopping queries with four
+models (TF-IDF, BM25, a MiniLM sentence-transformer and a Reciprocal Rank Fusion hybrid) and compare
+them on the Shopping Queries (ESCI) data. There is also a small web interface for trying queries.
 
----
+![Search page](figures/ui_search.png)
 
-## 🚀 Key Features & Highlights
+| Member | Registration no. | Part |
+| --- | --- | --- |
+| Tanishq Choudhary | 23FE10CSE00664 | Inverted index, TF-IDF, BM25, search interface |
+| Chinta Sri Durga Rohit | 23FE10CSE00596 | Data preparation, evaluation pipeline, hybrid RRF |
+| Ishan Ravishankar | 23FE10CSE00641 | Dense retrieval with Sentence Transformers |
 
-1. **100% From Scratch Text Preprocessing**:
-   - Product title cleaning (HTML stripping, entity unescaping, unicode normalization).
-   - Alphanumeric-aware tokenization preserving hardware specs (`128gb`, `4k`, `g502`).
-   - Stop-word removal filtering linguistic noise while retaining e-commerce intent.
-   - Morphological stemming using the Porter Stemmer algorithm.
+## Results in short
 
-2. **The 4 Core Ranking Paradigms**:
-   - **TF-IDF**: Classical Vector Space Model with sublinear TF scaling and Cosine Similarity.
-   - **BM25**: Probabilistic relevance framework with term saturation ($k_1 = 1.5$) and document length normalization ($b = 0.75$).
-   - **Dense Sentence Transformer**: Dense semantic vector retrieval using `all-MiniLM-L6-v2` (384-dimensional embeddings) to solve vocabulary mismatch.
-   - **Hybrid RRF**: Reciprocal Rank Fusion blending sparse (BM25) and dense (Transformer) rankings with rank discount constant $k=60$.
+On the 700 test queries, ranking all 19,876 products:
 
-3. **Rigorous Evaluation Engine**:
-   - Evaluated across real Amazon customer queries against ground-truth ESCI judgments.
-   - Metrics: **Precision@10**, **Recall**, **MAP**, and **Graded nDCG** ($E=3, S=2, C=1, I=0$).
-   - 11-point interpolated **Precision-Recall Curves** plotted across all 4 models on a single graph.
+| Model | P@10 | R@10 | R@100 | MAP | nDCG@10 | ms / query |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| TF-IDF | 0.322 | 0.440 | 0.796 | 0.395 | 0.527 | 0.3 |
+| BM25 | 0.346 | 0.471 | 0.806 | 0.436 | 0.570 | 0.3 |
+| Sentence Transformer | 0.339 | 0.462 | 0.823 | 0.417 | 0.556 | 13.1 |
+| **Hybrid (RRF)** | **0.363** | **0.496** | **0.860** | **0.463** | **0.600** | 14.2 |
 
-4. **Standalone EDA Notebook**:
-   - Pre-rendered [`notebooks/01_eda_and_data_inspection.ipynb`](notebooks/01_eda_and_data_inspection.ipynb) containing comprehensive distributions of the 2.6M raw judgments, 601k English Task 1 rows, ESCI class balance, and catalog properties.
+Re-ranking only the ~20 judged candidates of each query (ESCI Task 1):
 
-5. **Interactive Search Web UI**:
-   - Fast Streamlit web application (`app.py`) with real-time query search, live scratch-preprocessing inspector, side-by-side 4-model comparison, and benchmark dashboards.
+| Model | P@10 | R@10 | MAP | nDCG@10 |
+| --- | ---: | ---: | ---: | ---: |
+| Random order | 0.440 | 0.575 | 0.517 | 0.696 |
+| TF-IDF | 0.487 | 0.664 | 0.627 | 0.778 |
+| BM25 | 0.488 | 0.664 | 0.639 | 0.781 |
+| Sentence Transformer | 0.487 | 0.656 | 0.634 | 0.786 |
+| Hybrid (RRF) | 0.490 | 0.666 | 0.639 | 0.786 |
 
----
+What we took from this:
 
-## 📊 Evaluation Results (Standardized Comparison Table)
+- Over the full catalog the hybrid beats every single model, and a Wilcoxon test puts each of those
+  differences at p < 0.001. It gains most in Recall@100 (0.860 against 0.806 for BM25).
+- Tuned BM25 is the best single model and about 40 times faster than the dense one.
+- When re-ranking, the four models end up within 0.008 nDCG@10 of each other. The candidates were
+  already picked by Amazon's search for that query, so what is left is telling Exact from Substitute,
+  and a title often doesn't say enough for that.
 
-Evaluated over representative test queries from the official Amazon ESCI Task 1 benchmark:
+![Precision-recall curves](figures/fig_pr_curves.png)
 
-| Ranking Model | Precision@10 | Recall@10 | MAP | Graded nDCG |
-| :--- | :---: | :---: | :---: | :---: |
-| **TF-IDF** (Vector Space) | 0.8364 | 0.5992 | 0.8804 | 0.7812 |
-| **BM25** (Probabilistic) | 0.8372 | 0.5994 | 0.8794 | 0.7815 |
-| **Sentence Transformer** (MiniLM) | **0.8516** | **0.6115** | **0.8932** | 0.7923 |
-| **Hybrid (RRF)** (Sparse + Dense) | 0.8480 | 0.6097 | 0.8896 | **0.7984** |
+![All metrics, both protocols](figures/fig_metric_bars.png)
 
-> **Key Finding**: **Hybrid RRF achieved the highest graded nDCG (0.7984)**, demonstrating that combining the exact keyword precision of BM25 with the conceptual understanding of Sentence Transformers consistently pushes Exact matches to the very top rank.
+## Where BM25 and the dense model disagree
 
-The generated Precision-Recall curve graph is saved at:
-[`evaluation_results/precision_recall_curves.png`](evaluation_results/precision_recall_curves.png)
+Per query, the dense model beats BM25 on 313 test queries and loses on 339. They fail on different
+things, which is why fusing them helps.
 
----
+| Query | BM25 | Dense | Hybrid | Why |
+| --- | ---: | ---: | ---: | --- |
+| brown flats for women | 0.86 | 0.00 | 0.52 | colour has to match |
+| 14 gallon trash can | 0.78 | 0.28 | 0.80 | size has to match |
+| tidy die | 1.00 | 0.00 | 1.00 | rare brand name |
+| go pro camera | 0.00 | 0.86 | 0.50 | titles write "GoPro" |
+| ashwaghanda extract | 0.38 | 0.96 | 0.86 | misspelling |
+| hinatab | 0.00 | 0.66 | 0.35 | no stem in the index at all |
 
-## 📁 Repository Structure
+nDCG@10, full catalog.
 
-```text
-Information Retrival Project/
-├── Amazon-ESCI/                            # Raw untouched official dataset
-│   └── shopping_queries_dataset/
-│       ├── shopping_queries_dataset_examples.parquet
-│       ├── shopping_queries_dataset_products.parquet
-│       └── shopping_queries_dataset_sources.csv
-├── data/
-│   └── benchmark_sample.parquet            # Curated English Task 1 benchmark
-├── notebooks/
-│   └── 01_eda_and_data_inspection.ipynb    # Pre-rendered EDA notebook with charts & stats
-├── src/
-│   ├── __init__.py
-│   ├── preprocessing.py                    # Cleaning, tokenization, stop-words, stemming
-│   ├── evaluation.py                       # Precision@10, Recall, MAP, nDCG, PR-curves
-│   └── models/
-│       ├── __init__.py
-│       ├── tfidf_ranker.py                 # Model 1: TF-IDF
-│       ├── bm25_ranker.py                  # Model 2: BM25
-│       ├── dense_ranker.py                 # Model 3: Sentence Transformer
-│       └── hybrid_rrf.py                   # Model 4: Reciprocal Rank Fusion
-├── tests/
-│   ├── test_preprocessing.py               # Unit tests for text pipeline (7/7 passing)
-│   └── test_models.py                      # Unit tests for all 4 ranking models (5/5 passing)
-├── evaluation_results/
-│   ├── model_comparison_table.csv          # Master performance metrics CSV
-│   └── precision_recall_curves.png         # Precision-Recall curves plot
-├── app.py                                  # Streamlit interactive search UI
-├── run_evaluation.py                       # Master benchmark runner script
-├── requirements.txt                        # Dependency specifications
-└── README.md                               # Project documentation
-```
+![Per-query comparison](figures/fig_head_to_head.png)
 
----
+![Comparison page](figures/ui_compare.png)
 
-## ⚙️ How to Run & Verify
+## Data
 
-### 1. Run Automated Unit Tests
+`data/benchmark_sample.parquet` has 1,000 English queries from the test split of the ESCI reduced
+version, with all 20,156 judged query-product pairs over 19,876 products. Each pair is labelled
+**E**xact, **S**ubstitute, **C**omplement or **I**rrelevant. Products are indexed by title, with the
+brand added when the title doesn't already contain it. The full dataset (about 1.1 GB) is at
+<https://github.com/amazon-science/esci-data> and isn't needed to run anything here.
+
+![Dataset](figures/fig_dataset.png)
+
+79% of the judged pairs are Exact or Substitute. Our first evaluation counted both as relevant and
+every model scored P@10 around 0.84, which mostly measured that. Binary metrics now count only Exact;
+nDCG still uses all four grades (E 3, S 2, C 1, I 0).
+
+## How it works
+
+![Architecture](figures/diagram_architecture.png)
+
+**Preprocessing** (`src/preprocessing.py`): HTML unescape and tag removal, lower-casing, a tokenizer
+that keeps `128gb`, `usb-c` and `8.5` whole, NLTK stop-words, Porter stemmer. The dense model gets the
+cleaned text without stemming.
+
+![Preprocessing](figures/diagram_preprocessing.png)
+
+**Inverted index** (`src/indexing.py`): each stem maps to a postings list of (document, term frequency)
+as numpy arrays, with document frequencies and title lengths. 30,010 stems and 274,924 postings for
+the sample. A query only reads the postings of its own stems.
+
+![Index](figures/diagram_index.png)
+
+**Models** (`src/models/`)
+
+| Model | File | Notes |
+| --- | --- | --- |
+| TF-IDF | `tfidf_ranker.py` | log tf, smoothed idf, cosine. Our scores match scikit-learn's TfidfVectorizer to 1e-9 |
+| BM25 | `bm25_ranker.py` | Lucene-style idf (never negative), k1 = 0.6, b = 1.0 chosen on dev |
+| Dense | `dense_ranker.py` | `all-MiniLM-L6-v2`, 384-d normalised embeddings, cosine |
+| Hybrid | `hybrid_rrf.py` | RRF over the BM25 and dense lists, score = Σ 1/(k + rank), k = 10 |
+
+![RRF example](figures/diagram_rrf.png)
+
+## Evaluation
+
+The 1,000 queries are split once (seed 42) into 300 dev and 700 test queries. Every setting below was
+chosen on dev, using the mean nDCG@10 of the two protocols. The test set was scored once.
+
+![Protocol](figures/diagram_protocol.png)
+
+Before re-ranking, each query's candidate list is shuffled with a fixed seed. BM25 gives many
+candidates the same score, and a stable sort would otherwise keep whatever order the file had.
+
+**BM25 parameters.** k1 = 0.6, b = 1.0 beat the usual 1.2 / 0.75. Titles rarely repeat a word, so term
+frequency should saturate early, and long titles are long because they list features.
+
+![BM25 grid](figures/fig_bm25_grid.png)
+
+**TF-IDF weighting and preprocessing.** Stemming helps a lot (BM25 0.570 vs 0.530 on dev retrieval).
+Removing stop-words slightly hurts, because shopping queries use words like "for" and "without".
+In re-ranking a TF-IDF variant without idf came out on top but was the worst in retrieval, which is
+why settings are picked on both protocols together.
+
+![Ablations](figures/fig_ablation.png)
+
+**RRF.** The constant k barely matters (at most 0.009 nDCG@10 across k = 1 to 200). Which lists you
+fuse matters more. Adding TF-IDF as a third list makes it worse, because TF-IDF and BM25 make the same
+mistakes.
+
+![RRF settings](figures/fig_rrf.png)
+
+**By query length** the hybrid stays ahead in every group for retrieval. One- and two-word queries are
+the hardest.
+
+![Query length](figures/fig_query_length.png)
+
+**Label mix by rank.** Random order gives about 45% Exact at every position. The models raise that to
+62-66% at rank 1.
+
+![Labels by rank](figures/fig_label_position.png)
+
+**Speed** on a laptop CPU, top 100 of 19,876 products. Building the index takes about 7 s; encoding the
+catalog with MiniLM takes about a minute and a half and is cached in `data/`.
+
+![Latency](figures/fig_latency.png)
+
+All result tables (per query too) are in `evaluation_results/`. `run_summary.json` has the chosen
+settings, index size and timings.
+
+## Running it
+
 ```bash
-# Test the scratch preprocessing pipeline
-python -m unittest tests/test_preprocessing.py
-
-# Test all 4 ranking models
-python -m unittest tests/test_models.py
-```
-
-### 2. Run the Benchmark Evaluation
-```bash
+pip install -r requirements.txt
+python -m unittest discover tests
 python run_evaluation.py
+python -m uvicorn backend.main:app --port 8000
 ```
-This evaluates the models, outputs the comparison table in terminal, and generates `evaluation_results/precision_recall_curves.png` and `evaluation_results/model_comparison_table.csv`.
 
-### 3. Launch the Interactive Web Application & REST API
-```bash
-python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
+The evaluation takes about 4 minutes; the first run also encodes the catalog. Then open
+<http://localhost:8000>.
+
+The interface has four pages:
+
+- **Search.** One model at a time. TF-IDF and BM25 results show how much each query stem added to the
+  score, and hybrid results show the BM25 and dense ranks that were fused. The side panel shows how the
+  query was cleaned, tokenized and stemmed, with df and idf per stem. For any of the 1,000 benchmark
+  queries the results carry their E/S/C/I label and the page shows nDCG@10.
+- **Compare.** All four models side by side. Hover a product to find it in the other lists.
+- **Evaluation.** The test tables, PR curves and the BM25 grid.
+- **Index.** Vocabulary and postings size, the most common stems, the label mix.
+
+To redraw the graphs: `python figures/make_figures.py` and `python figures/diagrams.py`.
+
+## Layout
+
 ```
-- Open **`http://localhost:8000`** in your browser for the dedicated, ultra-responsive frontend web app.
-- Open **`http://localhost:8000/docs`** for the interactive Swagger OpenAPI REST documentation.
-
-### REST Endpoints Available for Frontend Integration:
-- `GET /api/search?q={query}&model={hybrid|bm25|dense|tfidf}&k={10}`: Search catalog with live preprocessing inspection.
-- `GET /api/compare?q={query}&k={5}`: Side-by-side 4-model comparison on the exact same query.
-- `GET /api/metrics`: Precomputed standardized evaluation comparison table.
-- `GET /api/eda`: Amazon ESCI dataset distribution summary.
-- `GET /health`: Engine status and catalog availability.
-
-### 4. View EDA Notebook
-Open `notebooks/01_eda_and_data_inspection.ipynb` in VS Code or Jupyter Notebook to inspect pre-rendered distributions and charts.
+backend/main.py          FastAPI app
+frontend/                web interface (HTML, CSS, JS, no build step)
+src/preprocessing.py     text pipeline
+src/indexing.py          inverted index
+src/models/              the four rankers
+src/evaluation.py        metrics and the two protocols
+run_evaluation.py        dev tuning, test run, analysis tables
+evaluation_results/      results (CSV, JSON)
+figures/                 graphs, diagrams and the scripts that draw them
+tests/                   unit tests
+notebooks/               exploratory data analysis
+```

@@ -3,6 +3,7 @@
 Project 14 for the Information Retrieval course. We rank Amazon products for shopping queries with four
 models (TF-IDF, BM25, a MiniLM sentence-transformer and a Reciprocal Rank Fusion hybrid) and compare
 them on the Shopping Queries (ESCI) data. There is also a small web interface for trying queries.
+The full write-up is in [report/Tanishq_Choudhary_23FE10CSE00664_Chinta_Sri_Durga_Rohit_23FE10CSE00596_Ishan_Ravishankar_23FE10CSE00641.pdf](report/Tanishq_Choudhary_23FE10CSE00664_Chinta_Sri_Durga_Rohit_23FE10CSE00596_Ishan_Ravishankar_23FE10CSE00641.pdf).
 
 ![Search page](figures/ui_search.png)
 

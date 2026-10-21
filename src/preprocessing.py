@@ -28,7 +28,7 @@ except LookupError:
 # Instantiate standard Porter Stemmer
 _STEMMER = PorterStemmer()
 
-# Regular expression patterns for high-performance cleaning & tokenization
+# Regular expressions used for cleaning and tokenization
 _HTML_TAG_RE = re.compile(r"<[^>]+>")
 _URL_RE = re.compile(r"http[s]?://\S+|www\.\S+")
 _NON_ALPHANUM_RE = re.compile(r"[^\w\s\-\.]")
@@ -146,7 +146,8 @@ def stem_tokens(
 def preprocess_text(
     text: Optional[str],
     apply_stemming: bool = True,
-    return_tokens: bool = True
+    return_tokens: bool = True,
+    apply_stopwords: bool = True
 ):
     """
     Full end-to-end preprocessing pipeline:
@@ -162,7 +163,7 @@ def preprocess_text(
     """
     cleaned = clean_text(text)
     tokens = tokenize(cleaned)
-    filtered = remove_stopwords(tokens)
+    filtered = remove_stopwords(tokens) if apply_stopwords else tokens
 
     if apply_stemming:
         processed = stem_tokens(filtered)

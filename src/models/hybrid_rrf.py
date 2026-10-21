@@ -92,7 +92,7 @@ class ReciprocalRankFusion:
         if not self.rankers:
             raise RuntimeError("No rankers provided to ReciprocalRankFusion.")
 
-        # Gather rankings from each sub-ranker (fetch more candidates for robust fusion)
+        # Gather rankings from each sub-ranker (fetch more candidates than needed before fusing)
         fetch_k = max(top_k * 3, 50)
         ranked_lists = [ranker.rank(query, top_k=fetch_k) for ranker in self.rankers]
 

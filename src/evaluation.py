@@ -1,309 +1,198 @@
 """
 src/evaluation.py
 -----------------
-Rigorous Evaluation Benchmark Engine for Project 14 (Product Search using Amazon ESCI).
+Metrics and evaluation loops for the ESCI benchmark.
 
-Implements the 4 core Information Retrieval metrics:
-1. Precision@10: Ratio of relevant items in top-10.
-2. Recall@K: Proportion of total relevant items retrieved.
-3. MAP (Mean Average Precision): Ranking quality across the entire result list.
-4. nDCG (Normalized Discounted Cumulative Gain): Handles graded multi-level ESCI relevance (E > S > C > I).
+Relevance
+    Graded gains for nDCG: E = 3, S = 2, C = 1, I = 0.
+    Binary metrics (P@k, Recall@k, AP, PR curve) count only Exact matches as
+    relevant. In this sample 79% of judged candidates are E or S, so treating
+    E+S as relevant makes even a random ordering score P@10 near 0.8 and hides
+    the differences between models.
 
-Also generates:
-- Combined Precision-Recall (P-R) curves for all 4 models on a single figure.
-- Comprehensive Performance Comparison Table (Markdown & CSV).
+Protocols
+    rerank     rank only the judged candidates of each query (ESCI Task 1)
+    retrieval  rank the whole catalog; unjudged products count as irrelevant
 """
 
 import os
-from typing import List, Dict, Any, Tuple, Optional
+from typing import Any, Dict, List, Optional, Sequence, Tuple
+
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 
-# Standard Graded Relevance Mapping for Amazon ESCI
-# E (Exact) = 3, S (Substitute) = 2, C (Complement) = 1, I (Irrelevant) = 0
-DEFAULT_ESCI_GAINS = {
-    "E": 3.0,
-    "S": 2.0,
-    "C": 1.0,
-    "I": 0.0
-}
-
-# Binary relevance cutoff: Items with gain >= 2.0 (Exact and Substitute) are relevant
-BINARY_RELEVANCE_THRESHOLD = 2.0
+DEFAULT_ESCI_GAINS = {"E": 3.0, "S": 2.0, "C": 1.0, "I": 0.0}
+BINARY_RELEVANCE_THRESHOLD = 3.0
+PR_RECALL_LEVELS = np.linspace(0.0, 1.0, 11)
 
 
-def compute_precision_at_k(
-    ranked_pids: List[str],
-    ground_truth: Dict[str, float],
-    k: int = 10,
-    relevance_threshold: float = BINARY_RELEVANCE_THRESHOLD
-) -> float:
-    """
-    Calculate Precision@K:
-    Number of relevant items in top-K divided by K.
-    """
+def _n_relevant(ground_truth: Dict[str, float], threshold: float) -> int:
+    return sum(1 for g in ground_truth.values() if g >= threshold)
+
+
+def compute_precision_at_k(ranked_pids, ground_truth, k=10, relevance_threshold=BINARY_RELEVANCE_THRESHOLD):
     if k <= 0:
         return 0.0
+    hits = sum(1 for pid in ranked_pids[:k] if ground_truth.get(pid, 0.0) >= relevance_threshold)
+    # divide by k (not by the list length) so short candidate lists are not rewarded
+    return hits / k
 
-    top_k = ranked_pids[:k]
-    if not top_k:
+
+def compute_recall_at_k(ranked_pids, ground_truth, k=10, relevance_threshold=BINARY_RELEVANCE_THRESHOLD):
+    total = _n_relevant(ground_truth, relevance_threshold)
+    if total == 0:
         return 0.0
+    hits = sum(1 for pid in ranked_pids[:k] if ground_truth.get(pid, 0.0) >= relevance_threshold)
+    return hits / total
 
-    rel_count = sum(1 for pid in top_k if ground_truth.get(pid, 0.0) >= relevance_threshold)
-    return rel_count / k
 
-
-def compute_recall_at_k(
-    ranked_pids: List[str],
-    ground_truth: Dict[str, float],
-    k: int = 10,
-    relevance_threshold: float = BINARY_RELEVANCE_THRESHOLD
-) -> float:
-    """
-    Calculate Recall@K:
-    Number of relevant items in top-K divided by total relevant items in candidate set.
-    """
-    total_relevant = sum(1 for gain in ground_truth.values() if gain >= relevance_threshold)
-    if total_relevant == 0:
+def compute_average_precision(ranked_pids, ground_truth, relevance_threshold=BINARY_RELEVANCE_THRESHOLD):
+    total = _n_relevant(ground_truth, relevance_threshold)
+    if total == 0:
         return 0.0
-
-    top_k = ranked_pids[:k]
-    rel_retrieved = sum(1 for pid in top_k if ground_truth.get(pid, 0.0) >= relevance_threshold)
-    return rel_retrieved / total_relevant
-
-
-def compute_average_precision(
-    ranked_pids: List[str],
-    ground_truth: Dict[str, float],
-    relevance_threshold: float = BINARY_RELEVANCE_THRESHOLD
-) -> float:
-    """
-    Calculate Average Precision (AP) for a single query:
-    AP = sum_{k=1}^N [ P@k * rel(k) ] / total_relevant
-    """
-    total_relevant = sum(1 for gain in ground_truth.values() if gain >= relevance_threshold)
-    if total_relevant == 0:
-        return 0.0
-
-    running_rel = 0
-    precision_sum = 0.0
-
+    hits, acc = 0, 0.0
     for i, pid in enumerate(ranked_pids, 1):
         if ground_truth.get(pid, 0.0) >= relevance_threshold:
-            running_rel += 1
-            precision_sum += (running_rel / i)
+            hits += 1
+            acc += hits / i
+    return acc / total
 
-    return precision_sum / total_relevant
 
-
-def compute_ndcg_at_k(
-    ranked_pids: List[str],
-    ground_truth: Dict[str, float],
-    k: int = 10
-) -> float:
-    """
-    Calculate Normalized Discounted Cumulative Gain (nDCG@K) with graded relevance:
-    DCG@K = sum_{i=1}^K [ (2^gain - 1) / log2(i + 1) ]
-    nDCG@K = DCG@K / IDCG@K
-    """
+def compute_ndcg_at_k(ranked_pids, ground_truth, k=10):
+    """nDCG@k with exponential gain (2^g - 1) / log2(i + 1)."""
     if k <= 0:
         return 0.0
-
-    top_k = ranked_pids[:k]
-    if not top_k:
-        return 0.0
-
-    # DCG
-    dcg = 0.0
-    for i, pid in enumerate(top_k, 1):
-        gain = ground_truth.get(pid, 0.0)
-        dcg += (2.0 ** gain - 1.0) / np.log2(i + 1)
-
-    # Ideal DCG (sorted true gains descending)
-    ideal_gains = sorted(ground_truth.values(), reverse=True)[:k]
-    idcg = 0.0
-    for i, gain in enumerate(ideal_gains, 1):
-        idcg += (2.0 ** gain - 1.0) / np.log2(i + 1)
-
-    if idcg == 0.0:
-        return 0.0
-
-    return dcg / idcg
+    dcg = sum((2.0 ** ground_truth.get(pid, 0.0) - 1.0) / np.log2(i + 1)
+              for i, pid in enumerate(ranked_pids[:k], 1))
+    ideal = sorted(ground_truth.values(), reverse=True)[:k]
+    idcg = sum((2.0 ** g - 1.0) / np.log2(i + 1) for i, g in enumerate(ideal, 1))
+    return dcg / idcg if idcg > 0 else 0.0
 
 
-def compute_interpolated_pr_curve(
-    ranked_pids: List[str],
-    ground_truth: Dict[str, float],
-    relevance_threshold: float = BINARY_RELEVANCE_THRESHOLD,
-    num_points: int = 11
-) -> np.ndarray:
-    """
-    Compute 11-point interpolated precision values at standard recall levels:
-    [0.0, 0.1, 0.2, ..., 1.0].
-    """
-    recall_levels = np.linspace(0.0, 1.0, num_points)
-    total_relevant = sum(1 for gain in ground_truth.values() if gain >= relevance_threshold)
-    if total_relevant == 0:
+def compute_interpolated_pr_curve(ranked_pids, ground_truth,
+                                  relevance_threshold=BINARY_RELEVANCE_THRESHOLD, num_points=11):
+    """11-point interpolated precision: p_interp(r) = max_{r' >= r} p(r')."""
+    levels = np.linspace(0.0, 1.0, num_points)
+    total = _n_relevant(ground_truth, relevance_threshold)
+    if total == 0 or not ranked_pids:
         return np.zeros(num_points)
 
-    precisions = []
-    recalls = []
-    running_rel = 0
+    rel = np.array([ground_truth.get(pid, 0.0) >= relevance_threshold for pid in ranked_pids])
+    hits = np.cumsum(rel)
+    precision = hits / np.arange(1, len(rel) + 1)
+    recall = hits / total
+    return np.array([precision[recall >= r].max() if (recall >= r).any() else 0.0 for r in levels])
 
-    for i, pid in enumerate(ranked_pids, 1):
-        if ground_truth.get(pid, 0.0) >= relevance_threshold:
-            running_rel += 1
-        precisions.append(running_rel / i)
-        recalls.append(running_rel / total_relevant)
 
-    precisions = np.array(precisions)
-    recalls = np.array(recalls)
+def build_qrels(benchmark_df: pd.DataFrame) -> Dict[Any, Dict[str, float]]:
+    qrels: Dict[Any, Dict[str, float]] = {}
+    for qid, pid, lab in benchmark_df[["query_id", "product_id", "esci_label"]].itertuples(index=False):
+        qrels.setdefault(qid, {})[pid] = DEFAULT_ESCI_GAINS.get(lab, 0.0)
+    return qrels
 
-    # 11-point interpolation: p_interp(r) = max_{r' >= r} p(r')
-    interpolated = []
-    for r in recall_levels:
-        eligible_p = precisions[recalls >= r]
-        if len(eligible_p) > 0:
-            interpolated.append(np.max(eligible_p))
-        else:
-            interpolated.append(0.0)
 
-    return np.array(interpolated)
+def evaluate_run(
+    run: Dict[Any, List[str]],
+    qrels: Dict[Any, Dict[str, float]],
+    k: int = 10,
+    deep_k: int = 100,
+) -> Tuple[pd.DataFrame, np.ndarray]:
+    """
+    Score one system. `run` maps query_id -> ranked product ids.
+    Returns a per-query metric table and the mean 11-point PR curve.
+    Queries with no Exact product are skipped (AP and recall are undefined).
+    """
+    rows, curves = [], []
+    for qid, ranked in run.items():
+        gt = qrels[qid]
+        if _n_relevant(gt, BINARY_RELEVANCE_THRESHOLD) == 0:
+            continue
+        rows.append({
+            "query_id": qid,
+            f"P@{k}": compute_precision_at_k(ranked, gt, k),
+            f"R@{k}": compute_recall_at_k(ranked, gt, k),
+            f"R@{deep_k}": compute_recall_at_k(ranked, gt, deep_k),
+            "AP": compute_average_precision(ranked, gt),
+            f"nDCG@{k}": compute_ndcg_at_k(ranked, gt, k),
+        })
+        curves.append(compute_interpolated_pr_curve(ranked, gt))
+    return pd.DataFrame(rows).set_index("query_id"), np.mean(curves, axis=0)
+
+
+def summarise(per_query: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+    table = pd.DataFrame({name: df.mean() for name, df in per_query.items()}).T
+    table = table.rename(columns={"AP": "MAP"})
+    table.index.name = "Model"
+    return table
+
+
+def paired_tests(per_query: Dict[str, pd.DataFrame], metric: str = "nDCG@10") -> pd.DataFrame:
+    """Two-sided Wilcoxon signed-rank test for every pair of systems."""
+    from scipy.stats import wilcoxon
+
+    names = list(per_query)
+    out = pd.DataFrame(index=names, columns=names, dtype=float)
+    for a in names:
+        for b in names:
+            if a == b:
+                continue
+            x, y = per_query[a][metric].align(per_query[b][metric], join="inner")
+            diff = x - y
+            out.loc[a, b] = 1.0 if (diff == 0).all() else wilcoxon(x, y, zero_method="zsplit").pvalue
+    return out
+
+
+def run_rerank(ranker, queries: pd.DataFrame, candidates: Dict[Any, List[str]]) -> Dict[Any, List[str]]:
+    return {qid: [pid for pid, _ in ranker.score_candidates(q, candidates[qid])]
+            for qid, q in queries[["query_id", "query"]].itertuples(index=False)}
+
+
+def run_retrieval(ranker, queries: pd.DataFrame, depth: int = 100) -> Dict[Any, List[str]]:
+    return {qid: [pid for pid, _ in ranker.rank(q, top_k=depth)]
+            for qid, q in queries[["query_id", "query"]].itertuples(index=False)}
 
 
 def evaluate_models_on_benchmark(
     models: Dict[str, Any],
     benchmark_df: pd.DataFrame,
     k: int = 10,
-    output_dir: str = "evaluation_results"
-) -> Tuple[pd.DataFrame, str]:
+    output_dir: Optional[str] = "evaluation_results",
+    seed: int = 42,
+) -> Tuple[pd.DataFrame, Dict[str, np.ndarray]]:
+    """Re-ranking evaluation of several models. Kept for scripts that only need the table."""
+    qrels = build_qrels(benchmark_df)
+    queries = benchmark_df[["query_id", "query"]].drop_duplicates("query_id")
+    candidates = shuffled_candidates(benchmark_df, seed)
+    per_query, curves = {}, {}
+    for name, ranker in models.items():
+        per_query[name], curves[name] = evaluate_run(run_rerank(ranker, queries, candidates), qrels, k)
+    table = summarise(per_query)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        table.round(4).to_csv(os.path.join(output_dir, "model_comparison_table.csv"))
+    return table, curves
+
+
+def shuffled_candidates(benchmark_df: pd.DataFrame, seed: int = 42) -> Dict[Any, List[str]]:
     """
-    Run full standardized evaluation benchmark across all models:
-    - Precision@10
-    - Recall@10
-    - MAP
-    - nDCG@10
-    - Precision-Recall curves
-
-    Args:
-        models: Dictionary of {model_name: model_instance}.
-        benchmark_df: DataFrame containing ['query_id', 'query', 'product_id', 'esci_label'].
-        k: Ranking cutoff (default: 10).
-        output_dir: Directory to save plots and comparison tables.
-
-    Returns:
-        Tuple[pd.DataFrame, str]: (Metrics DataFrame, Path to saved PR-curve plot).
+    Candidate lists per query in a fixed random order. Sparse models give many
+    candidates the same score (often zero) and a stable sort keeps their input
+    order, so the order must not carry any information about the labels.
     """
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Group benchmark by query
-    grouped = benchmark_df.groupby("query_id")
-    print(f"Evaluating {len(models)} models across {len(grouped):,} test queries...")
-
-    # Data structures to accumulate metrics per model
-    model_metrics: Dict[str, Dict[str, List[float]]] = {
-        name: {"P@10": [], "Recall": [], "MAP": [], "nDCG": []}
-        for name in models
-    }
-    model_pr_curves: Dict[str, List[np.ndarray]] = {name: [] for name in models}
-
-    for qid, group in grouped:
-        query_str = group["query"].iloc[0]
-        candidate_pids = list(group["product_id"].values)
-
-        # Ground truth mapping: pid -> gain
-        ground_truth = {
-            row["product_id"]: DEFAULT_ESCI_GAINS.get(row["esci_label"], 0.0)
-            for _, row in group.iterrows()
-        }
-
-        # Skip queries with zero relevant items
-        if sum(1 for g in ground_truth.values() if g >= BINARY_RELEVANCE_THRESHOLD) == 0:
-            continue
-
-        for model_name, ranker in models.items():
-            scored_candidates = ranker.score_candidates(query_str, candidate_pids)
-            ranked_pids = [pid for pid, _ in scored_candidates]
-
-            p_10 = compute_precision_at_k(ranked_pids, ground_truth, k=k)
-            rec = compute_recall_at_k(ranked_pids, ground_truth, k=k)
-            ap = compute_average_precision(ranked_pids, ground_truth)
-            ndcg = compute_ndcg_at_k(ranked_pids, ground_truth, k=k)
-            pr_11 = compute_interpolated_pr_curve(ranked_pids, ground_truth)
-
-            model_metrics[model_name]["P@10"].append(p_10)
-            model_metrics[model_name]["Recall"].append(rec)
-            model_metrics[model_name]["MAP"].append(ap)
-            model_metrics[model_name]["nDCG"].append(ndcg)
-            model_pr_curves[model_name].append(pr_11)
-
-    # Compute mean summary metrics
-    summary_rows = []
-    for name in models:
-        row = {
-            "Model": name,
-            "Precision@10": np.mean(model_metrics[name]["P@10"]),
-            "Recall": np.mean(model_metrics[name]["Recall"]),
-            "MAP": np.mean(model_metrics[name]["MAP"]),
-            "nDCG": np.mean(model_metrics[name]["nDCG"])
-        }
-        summary_rows.append(row)
-
-    metrics_df = pd.DataFrame(summary_rows).set_index("Model")
-    csv_path = os.path.join(output_dir, "model_comparison_table.csv")
-    metrics_df.round(4).to_csv(csv_path)
-
-    # Plot Precision-Recall curves on a single graph
-    plt.figure(figsize=(9, 6))
-    recall_axis = np.linspace(0.0, 1.0, 11)
-    palette = {
-        "TF-IDF": "#e67e22",
-        "BM25": "#2980b9",
-        "Sentence Transformer": "#8e44ad",
-        "Hybrid (RRF)": "#27ae60"
-    }
-
-    for name in models:
-        mean_curve = np.mean(model_pr_curves[name], axis=0)
-        color = palette.get(name, None)
-        plt.plot(recall_axis, mean_curve, marker="o", linewidth=2.2, label=name, color=color)
-
-    plt.title("Precision-Recall Curves Across 4 Ranking Paradigms (Amazon ESCI)", fontsize=13, fontweight="bold")
-    plt.xlabel("Recall Level", fontsize=11)
-    plt.ylabel("Interpolated Precision", fontsize=11)
-    plt.ylim(0.0, 1.05)
-    plt.xlim(0.0, 1.0)
-    plt.legend(title="Ranking Model", fontsize=10, loc="lower left")
-    plt.grid(True, linestyle="--", alpha=0.6)
-    plt.tight_layout()
-
-    pr_plot_path = os.path.join(output_dir, "precision_recall_curves.png")
-    plt.savefig(pr_plot_path, dpi=300)
-    plt.close()
-
-    print(f"\n[DONE] Master Comparison Table saved to: {csv_path}")
-    print(f"[DONE] Precision-Recall Curve Plot saved to: {pr_plot_path}")
-
-    return metrics_df, pr_plot_path
+    rng = np.random.default_rng(seed)
+    out = {}
+    for qid, grp in benchmark_df.groupby("query_id", sort=False):
+        pids = grp["product_id"].tolist()
+        rng.shuffle(pids)
+        out[qid] = pids
+    return out
 
 
 if __name__ == "__main__":
-    # Self-test evaluation formulas on mock data
-    mock_ranked = ["P1", "P2", "P3", "P4", "P5"]
-    mock_gt = {"P1": 3.0, "P2": 2.0, "P3": 0.0, "P4": 1.0, "P5": 0.0}
-
-    p10 = compute_precision_at_k(mock_ranked, mock_gt, k=5)
-    rec = compute_recall_at_k(mock_ranked, mock_gt, k=5)
-    ap = compute_average_precision(mock_ranked, mock_gt)
-    ndcg = compute_ndcg_at_k(mock_ranked, mock_gt, k=5)
-
-    print("=" * 60)
-    print("DEMO: IR Metrics Verification")
-    print(f"Precision@5: {p10:.4f}")
-    print(f"Recall@5:    {rec:.4f}")
-    print(f"MAP (AP):    {ap:.4f}")
-    print(f"nDCG@5:      {ndcg:.4f}")
-    print("=" * 60)
+    ranked = ["P1", "P2", "P3", "P4", "P5"]
+    gt = {"P1": 3.0, "P2": 2.0, "P3": 0.0, "P4": 3.0, "P5": 0.0}
+    print(f"P@5    {compute_precision_at_k(ranked, gt, 5):.4f}")
+    print(f"R@5    {compute_recall_at_k(ranked, gt, 5):.4f}")
+    print(f"AP     {compute_average_precision(ranked, gt):.4f}")
+    print(f"nDCG@5 {compute_ndcg_at_k(ranked, gt, 5):.4f}")

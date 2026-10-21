@@ -5,6 +5,10 @@ Architecture and worked-example diagrams for the report. The worked examples
 (preprocessing, postings, RRF) are produced by running the real code, so the
 numbers in them are what the system actually outputs.
 
+Every diagram is drawn at its printed size: the canvas is 6.5 inches wide (the
+text width of the report) and coordinates are in inches, so a 10 pt label
+prints at 10 pt.
+
     python figures/diagrams.py
 """
 
@@ -21,39 +25,39 @@ sys.path.insert(0, ROOT)
 FIG = os.path.join(ROOT, "figures")
 os.makedirs(FIG, exist_ok=True)
 
-INK, MUTED, RULE, PAPER = "#1b1b19", "#77756e", "#cfccc1", "#ffffff"
-SPARSE, DENSE, HYB, EVAL = "#e6f0fb", "#ece9fa", "#fbe9e8", "#eaf6f0"
-plt.rcParams.update({"font.family": ["Calibri", "Segoe UI", "DejaVu Sans"], "font.size": 10, "savefig.dpi": 220})
+INK, BODY, MUTED, RULE, PAPER = "#1b1b19", "#33322e", "#6f6d66", "#c9c6bb", "#ffffff"
+SPARSE, DENSE, HYB, EVAL, SOFT = "#e6f0fb", "#ece9fa", "#fbe9e8", "#eaf6f0", "#f6f5f1"
+plt.rcParams.update({"font.family": ["Calibri", "Segoe UI", "DejaVu Sans"], "savefig.dpi": 300})
 MONO = "Consolas"
+TITLE, TEXT, NOTE, CODE = 10.5, 9.5, 9, 8.5   # point sizes as printed
+
+W = 6.5
 
 
-SCALE = 0.7   # draw on a smaller canvas so text is large relative to the boxes once placed on a page
-
-
-def canvas(w, h):
-    fig = plt.figure(figsize=(w * SCALE, h * SCALE))
+def canvas(h, w=W):
+    fig = plt.figure(figsize=(w, h))
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_xlim(0, w); ax.set_ylim(0, h); ax.axis("off")
     return fig, ax
 
 
-def box(ax, x, y, w, h, title, body=None, fc=PAPER, ec=INK, size=10, mono_body=False, lw=1.0):
-    ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0,rounding_size=0.06", fc=fc, ec=ec, lw=lw))
+def box(ax, x, y, w, h, title, body=None, fc=PAPER, ec=INK, lw=0.9):
+    ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0,rounding_size=0.05", fc=fc, ec=ec, lw=lw))
     if body:
-        ax.text(x + w / 2, y + h - 0.2, title, ha="center", va="top", fontsize=size, fontweight="bold", color=INK)
-        ax.text(x + w / 2, y + h - 0.47, body, ha="center", va="top", fontsize=size - 1.5, color="#3d3c38",
-                family=MONO if mono_body else None, linespacing=1.35)
+        ax.text(x + w / 2, y + h - 0.09, title, ha="center", va="top", fontsize=TITLE, fontweight="bold", color=INK)
+        ax.text(x + w / 2, y + h - 0.32, body, ha="center", va="top", fontsize=TEXT, color=BODY, linespacing=1.25)
     else:
-        ax.text(x + w / 2, y + h / 2, title, ha="center", va="center", fontsize=size, fontweight="bold", color=INK)
+        ax.text(x + w / 2, y + h / 2, title, ha="center", va="center", fontsize=TITLE, fontweight="bold",
+                color=INK, linespacing=1.2)
 
 
-def arrow(ax, p, q, color=INK, style="-|>", lw=1.1, rad=0.0, ls="-"):
-    ax.add_patch(FancyArrowPatch(p, q, arrowstyle=style, mutation_scale=11, color=color, lw=lw,
-                                 connectionstyle=f"arc3,rad={rad}", linestyle=ls, shrinkA=2, shrinkB=2))
+def arrow(ax, p, q, color=INK, lw=1.0):
+    ax.add_patch(FancyArrowPatch(p, q, arrowstyle="-|>", mutation_scale=10, color=color, lw=lw,
+                                 shrinkA=1, shrinkB=1))
 
 
 def save(fig, name):
-    fig.savefig(os.path.join(FIG, name), facecolor="white", bbox_inches="tight", pad_inches=0.08)
+    fig.savefig(os.path.join(FIG, name), facecolor="white", bbox_inches="tight", pad_inches=0.05)
     plt.close(fig)
     print("wrote", name)
 
@@ -61,36 +65,44 @@ def save(fig, name):
 # ---------------------------------------------------------------------------- 1. architecture
 
 def architecture():
-    fig, ax = canvas(12, 7.2)
-    ax.text(0.2, 6.95, "OFFLINE  (once, about 1 minute)", fontsize=9, color=MUTED, fontweight="bold")
-    ax.text(0.2, 3.55, "ONLINE  (per query, milliseconds)", fontsize=9, color=MUTED, fontweight="bold")
-    ax.plot([0.2, 11.8], [3.8, 3.8], color=RULE, lw=1)
+    fig, ax = canvas(5.35)
+    bw, gap = 1.33, 0.36
+    xs = [0.05 + i * (bw + gap) for i in range(4)]
+    h = 0.82
 
-    box(ax, 0.2, 5.3, 2.1, 1.4, "ESCI sample", "20,156 judgments\n1,000 queries\n19,876 products")
-    box(ax, 2.8, 5.3, 2.1, 1.4, "Product text", "title\n+ brand if missing\nfrom title")
-    box(ax, 5.4, 5.85, 2.3, 0.95, "Preprocessing", "clean, tokenize,\nstop-words, Porter", size=9.5)
-    box(ax, 5.4, 4.15, 2.3, 1.2, "MiniLM-L6-v2", "384-d, L2-normalised\nencoder", fc=DENSE, size=9.5)
-    box(ax, 8.3, 5.85, 3.5, 0.95, "Inverted index", "term → [(doc, tf)], df, |d|, avgdl", fc=SPARSE, size=9.5)
-    box(ax, 8.3, 4.15, 3.5, 1.2, "Embedding matrix", "19,876 × 384 float32\ncached in data/*.npy", fc=DENSE, size=9.5)
-    arrow(ax, (2.3, 6.0), (2.8, 6.0))
-    arrow(ax, (4.9, 6.3), (5.4, 6.3)); arrow(ax, (4.9, 5.6), (5.4, 4.8), rad=0.0)
-    arrow(ax, (7.7, 6.3), (8.3, 6.3)); arrow(ax, (7.7, 4.75), (8.3, 4.75))
+    ax.text(0.05, 5.2, "OFFLINE, once (about a minute)", fontsize=NOTE, color=MUTED, fontweight="bold", va="center")
+    ax.plot([0.05, W - 0.05], [5.05, 5.05], color=RULE, lw=0.8)
+    box(ax, xs[0], 4.05, bw, h, "ESCI sample", "19,876 products\n1,000 queries")
+    box(ax, xs[1], 4.05, bw, h, "Product text", "title, plus brand\nif missing")
+    box(ax, xs[2], 4.05, bw, h, "Preprocess", "clean, tokenize,\nstop-words, stem")
+    box(ax, xs[3], 4.05, bw, h, "Inverted index", "postings, df,\ntitle lengths", fc=SPARSE)
+    box(ax, xs[2], 3.0, bw, h, "MiniLM encoder", "384-d vectors", fc=DENSE)
+    box(ax, xs[3], 3.0, bw, h, "Embeddings", "19,876 × 384,\ncached on disk", fc=DENSE)
+    for i in range(3):
+        arrow(ax, (xs[i] + bw, 4.46), (xs[i + 1], 4.46))
+    arrow(ax, (xs[1] + bw * 0.75, 4.05), (xs[2], 3.41))
+    arrow(ax, (xs[2] + bw, 3.41), (xs[3], 3.41))
 
-    box(ax, 0.2, 1.55, 1.7, 1.3, "Query", '"apple airpods\npro case"', size=10)
-    box(ax, 2.4, 2.25, 2.0, 1.0, "Preprocess", "same pipeline", size=9.5)
-    box(ax, 2.4, 0.55, 2.0, 1.0, "Encode", "MiniLM, 384-d", fc=DENSE, size=9.5)
-    box(ax, 4.9, 2.75, 2.3, 0.75, "TF-IDF  cosine", fc=SPARSE, size=9.5)
-    box(ax, 4.9, 1.85, 2.3, 0.75, "BM25  (k1, b)", fc=SPARSE, size=9.5)
-    box(ax, 4.9, 0.55, 2.3, 1.0, "Dense  q · d", "dot product of\nunit vectors", fc=DENSE, size=9.5)
-    box(ax, 7.75, 1.2, 1.9, 1.3, "RRF", "Σ 1 / (k + rank)", fc=HYB)
-    box(ax, 10.1, 1.2, 1.7, 1.3, "Top-k", "FastAPI\n+ web UI", size=10)
-    arrow(ax, (1.9, 2.4), (2.4, 2.75)); arrow(ax, (1.9, 2.0), (2.4, 1.05))
-    arrow(ax, (4.4, 2.85), (4.9, 3.1)); arrow(ax, (4.4, 2.6), (4.9, 2.2))
-    arrow(ax, (4.4, 1.05), (4.9, 1.05))
-    arrow(ax, (7.2, 2.2), (7.75, 2.0)); arrow(ax, (7.2, 1.05), (7.75, 1.55))
-    arrow(ax, (9.65, 1.85), (10.1, 1.85))
-    ax.text(7.75, 0.75, "TF-IDF, BM25 and Dense are\nalso served on their own", fontsize=8.5, color=MUTED, va="top")
-    ax.text(9.55, 3.35, "sparse scorers read the index,\ndense reads the matrix", fontsize=8.5, color=MUTED, va="top")
+    ax.text(0.05, 2.7, "ONLINE, per query (milliseconds)", fontsize=NOTE, color=MUTED, fontweight="bold", va="center")
+    ax.plot([0.05, W - 0.05], [2.55, 2.55], color=RULE, lw=0.8)
+    cw, cg = 1.04, 0.29
+    cx = [0.05 + i * (cw + cg) for i in range(5)]
+    box(ax, cx[0], 0.85, cw, 0.82, "Query", "“apple airpods\npro case”")
+    box(ax, cx[1], 1.5, cw, 0.62, "Preprocess", "same steps")
+    box(ax, cx[1], 0.15, cw, 0.62, "Encode", "MiniLM", fc=DENSE)
+    box(ax, cx[2], 1.85, cw, 0.42, "TF-IDF", fc=SPARSE)
+    box(ax, cx[2], 1.2, cw, 0.42, "BM25", fc=SPARSE)
+    box(ax, cx[2], 0.15, cw, 0.62, "Dense", "cosine", fc=DENSE)
+    box(ax, cx[3], 0.62, cw, 0.62, "RRF", "Σ 1/(k + rank)", fc=HYB)
+    box(ax, cx[4], 0.55, cw, 0.76, "Top-k", "API and\nweb page")
+    arrow(ax, (cx[0] + cw, 1.45), (cx[1], 1.81))
+    arrow(ax, (cx[0] + cw, 1.05), (cx[1], 0.46))
+    arrow(ax, (cx[1] + cw, 1.95), (cx[2], 2.06))
+    arrow(ax, (cx[1] + cw, 1.7), (cx[2], 1.41))
+    arrow(ax, (cx[1] + cw, 0.46), (cx[2], 0.46))
+    arrow(ax, (cx[2] + cw, 1.41), (cx[3], 1.1))
+    arrow(ax, (cx[2] + cw, 0.46), (cx[3], 0.78))
+    arrow(ax, (cx[3] + cw, 0.93), (cx[4], 0.93))
     save(fig, "diagram_architecture.png")
 
 
@@ -105,19 +117,23 @@ def preprocessing_example():
     stems = stem_tokens(kept)
     removed = [t for t in toks if t not in kept]
 
-    rows = [("Raw title", raw), ("1. Clean", cleaned), ("2. Tokenize", " ".join(f"[{t}]" for t in toks)),
-            ("3. Stop-words", " ".join(f"[{t}]" for t in kept) + f"  (removed: {', '.join(removed) or 'none'})"),
-            ("4. Porter stem", " ".join(f"[{t}]" for t in stems))]
-    fig, ax = canvas(12, 3.6)
-    cx, step, y = 0.85, 0.72, 3.2
-    for i, (k, v) in enumerate(rows):
-        ax.text(cx, y, k, fontsize=10, fontweight="bold", ha="center", va="center", color=INK if i else MUTED)
-        ax.add_patch(FancyBboxPatch((1.75, y - 0.25), 10.2, 0.5, boxstyle="round,pad=0,rounding_size=0.05",
-                                    fc="#f6f5f1" if i == 0 else PAPER, ec=RULE, lw=0.9))
-        ax.text(1.88, y, v, fontsize=8.6, family=MONO, va="center", color=INK)
+    rows = [("Raw title", raw),
+            ("Step 1. Clean: decode entities, drop punctuation, lower-case", cleaned),
+            ("Step 2. Tokenize: keep sizes and hyphenated words whole", " ".join(f"[{t}]" for t in toks)),
+            (f"Step 3. Remove stop-words and one-letter tokens (drops “{', '.join(removed)}”)",
+             " ".join(f"[{t}]" for t in kept)),
+            ("Step 4. Porter stemmer", " ".join(f"[{t}]" for t in stems))]
+    row_h = 0.92
+    fig, ax = canvas(row_h * len(rows))
+    y = row_h * len(rows)
+    for i, (label, text) in enumerate(rows):
+        ax.text(0.05, y - 0.13, label, fontsize=TEXT, fontweight="bold", va="center", color=INK if i else MUTED)
+        ax.add_patch(FancyBboxPatch((0.05, y - 0.62), W - 0.1, 0.34, boxstyle="round,pad=0,rounding_size=0.04",
+                                    fc=SOFT if i == 0 else PAPER, ec=RULE, lw=0.8))
+        ax.text(0.14, y - 0.45, text, fontsize=CODE, family=MONO, va="center", color=INK)
         if i < len(rows) - 1:
-            arrow(ax, (cx, y - 0.17), (cx, y - step + 0.17), color=MUTED)
-        y -= step
+            arrow(ax, (W / 2, y - 0.63), (W / 2, y - row_h + 0.01), color=MUTED, lw=0.9)
+        y -= row_h
     save(fig, "diagram_preprocessing.png")
     return raw, stems
 
@@ -134,32 +150,39 @@ def index_example():
     scores = r.score_all(q)
     terms = ["airpod", "pro", "case", "silicon", "appl", "earbud"]
 
-    fig, ax = canvas(12, 4.1)
-    ax.text(0.2, 3.85, "Catalog", fontsize=10, fontweight="bold")
+    fig, ax = canvas(4.25)
+    ax.text(0.05, 4.1, "Catalog", fontsize=TITLE, fontweight="bold", va="center")
     for i, d in enumerate(docs):
-        ax.text(0.2, 3.4 - i * 0.45, f"d{i + 1}", fontsize=9.5, color=MUTED, family=MONO)
-        ax.text(0.6, 3.4 - i * 0.45, d, fontsize=9.5)
-    ax.text(4.9, 3.85, "Postings  (doc : tf)", fontsize=10, fontweight="bold")
-    ax.text(8.1, 3.85, "df   idf", fontsize=10, fontweight="bold", family=MONO)
+        ax.text(0.05, 3.8 - i * 0.24, f"d{i + 1}", fontsize=TEXT, color=MUTED, family=MONO, va="center")
+        ax.text(0.4, 3.8 - i * 0.24, d, fontsize=TEXT, va="center")
+    ax.plot([0.05, W - 0.05], [3.0, 3.0], color=RULE, lw=0.8)
+
+    top = 2.75
+    ax.text(0.05, top, "Stem", fontsize=TITLE, fontweight="bold", va="center")
+    ax.text(0.9, top, "Postings (doc : tf)", fontsize=TITLE, fontweight="bold", va="center")
+    ax.text(2.95, top, "df", fontsize=TITLE, fontweight="bold", va="center")
+    ax.text(3.35, top, "idf", fontsize=TITLE, fontweight="bold", va="center")
     for i, t in enumerate(terms):
         ids, tfs = r.index.get(t)
-        y = 3.4 - i * 0.42
-        ax.text(4.9, y, t, family=MONO, fontsize=9.5, fontweight="bold")
-        x = 6.0
-        for d, tf in zip(ids, tfs):
-            ax.add_patch(FancyBboxPatch((x, y - 0.15), 0.62, 0.32, boxstyle="round,pad=0,rounding_size=0.04",
-                                        fc=SPARSE, ec="#9db7d3", lw=0.8))
-            ax.text(x + 0.31, y, f"d{d + 1}:{int(tf)}", ha="center", va="center", fontsize=8.5, family=MONO)
-            x += 0.7
-        ax.text(8.1, y, f"{r.index.df[t]:<4} {r.idf[t]:.3f}", family=MONO, fontsize=9.5, va="center")
+        y = top - 0.4 - i * 0.37
+        ax.text(0.05, y, t, family=MONO, fontsize=TEXT, fontweight="bold", va="center")
+        x = 0.9
+        for dd, tf in zip(ids, tfs):
+            ax.add_patch(FancyBboxPatch((x, y - 0.13), 0.58, 0.26, boxstyle="round,pad=0,rounding_size=0.03",
+                                        fc=SPARSE, ec="#9db7d3", lw=0.7))
+            ax.text(x + 0.29, y, f"d{dd + 1}:{int(tf)}", ha="center", va="center", fontsize=CODE, family=MONO)
+            x += 0.65
+        ax.text(2.95, y, f"{r.index.df[t]}", family=MONO, fontsize=TEXT, va="center")
+        ax.text(3.35, y, f"{r.idf[t]:.3f}", family=MONO, fontsize=TEXT, va="center")
 
-    ax.text(9.8, 3.85, f'BM25 for "{q}"', fontsize=10, fontweight="bold")
+    ax.plot([4.15, 4.15], [0.25, 2.9], color=RULE, lw=0.8)
+    ax.text(4.35, top, f"BM25, “{q}”", fontsize=TITLE, fontweight="bold", va="center")
     order = sorted(range(3), key=lambda i: -scores[i])
     for j, i in enumerate(order):
-        ax.text(9.8, 3.4 - j * 0.45, f"{j + 1}.  d{i + 1}   {scores[i]:.3f}", family=MONO, fontsize=9.5)
-    ax.text(9.8, 1.85, f"k1 = 1.2, b = 0.75\navgdl = {r.index.avg_doc_len:.2f} stems\nonly postings of query\nterms are read",
-            fontsize=8.8, color=MUTED, va="top", linespacing=1.4)
-    ax.plot([4.6, 4.6], [1.0, 4.0], color=RULE); ax.plot([9.55, 9.55], [1.0, 4.0], color=RULE)
+        ax.text(4.35, top - 0.4 - j * 0.32, f"{j + 1}.  d{i + 1}   {scores[i]:.3f}", family=MONO, fontsize=TEXT,
+                va="center")
+    ax.text(4.35, 1.2, f"k1 = 1.2, b = 0.75\naverage length {r.index.avg_doc_len:.2f}\nonly the postings of the\n"
+                       "query stems are read", fontsize=NOTE, color=MUTED, va="top", linespacing=1.3)
     save(fig, "diagram_index.png")
 
 
@@ -187,78 +210,80 @@ def rrf_example(query="bluetooth speaker waterproof", k_show=5):
     rb = {p: i + 1 for i, (p, _) in enumerate(lb)}
     rd = {p: i + 1 for i, (p, _) in enumerate(ld)}
 
-    def short(p, n=40):
+    def short(p, n):
         t = title[p]
-        return t if len(t) <= n else t[: n - 1] + "…"
+        return t if len(t) <= n else t[: n - 1].rstrip(" ,-") + "…"
 
-    fig, ax = canvas(13, 3.9)
-    cols = [(0.2, "BM25", lb[:k_show], SPARSE), (3.95, "Dense (MiniLM)", ld[:k_show], DENSE)]
-    for x, name, lst, fc in cols:
-        ax.text(x, 3.6, name, fontsize=10.5, fontweight="bold")
+    rh = 0.33
+    fig, ax = canvas(4.75)
+    half = (W - 0.3) / 2
+    for x, name, lst, fc in [(0.05, "BM25", lb[:k_show], SPARSE), (0.25 + half, "Dense (MiniLM)", ld[:k_show], DENSE)]:
+        ax.text(x, 4.6, name, fontsize=TITLE, fontweight="bold", va="center")
         for i, (p, s) in enumerate(lst):
-            y = 3.1 - i * 0.5
-            ax.add_patch(FancyBboxPatch((x, y - 0.19), 3.5, 0.38, boxstyle="round,pad=0,rounding_size=0.04", fc=fc, ec=RULE))
-            ax.text(x + 0.08, y, f"{i + 1}", fontsize=9, family=MONO, va="center", color=MUTED)
-            ax.text(x + 0.35, y, short(p, 36), fontsize=8.6, va="center")
-    x = 7.7
-    ax.text(x, 3.6, f"RRF, k = {k}", fontsize=10.5, fontweight="bold")
+            y = 4.27 - i * rh
+            ax.add_patch(FancyBboxPatch((x, y - 0.13), half, 0.26, boxstyle="round,pad=0,rounding_size=0.03",
+                                        fc=fc, ec=RULE, lw=0.7))
+            ax.text(x + 0.07, y, f"{i + 1}", fontsize=TEXT, family=MONO, va="center", color=MUTED)
+            ax.text(x + 0.25, y, short(p, 34), fontsize=TEXT, va="center")
+    ax.plot([0.05, W - 0.05], [2.47, 2.47], color=RULE, lw=0.8)
+    ax.text(0.05, 2.25, f"Fused with RRF, k = {k}", fontsize=TITLE, fontweight="bold", va="center")
     for i, (p, s) in enumerate(fused):
-        y = 3.1 - i * 0.5
-        ax.add_patch(FancyBboxPatch((x, y - 0.19), 5.1, 0.38, boxstyle="round,pad=0,rounding_size=0.04", fc=HYB, ec=RULE))
-        ax.text(x + 0.08, y, f"{i + 1}", fontsize=9, family=MONO, va="center", color=MUTED)
-        ax.text(x + 0.35, y, short(p, 24), fontsize=8.6, va="center")
+        y = 1.92 - i * rh
+        ax.add_patch(FancyBboxPatch((0.05, y - 0.13), W - 0.1, 0.26, boxstyle="round,pad=0,rounding_size=0.03",
+                                    fc=HYB, ec=RULE, lw=0.7))
+        ax.text(0.12, y, f"{i + 1}", fontsize=TEXT, family=MONO, va="center", color=MUTED)
+        ax.text(0.3, y, short(p, 42), fontsize=TEXT, va="center")
         parts = [f"1/({k}+{r})" for r in (rb.get(p), rd.get(p)) if r]
-        ax.text(x + 5.0, y, " + ".join(parts) + f" = {s:.4f}", fontsize=7.8, family=MONO, color="#3d3c38",
+        ax.text(W - 0.12, y, " + ".join(parts) + f" = {s:.4f}", fontsize=CODE, family=MONO, color=BODY,
                 va="center", ha="right")
-    ax.text(0.2, 0.25, f'Query: "{query}".  Each product gets 1/(k + rank) from every list it appears in; '
-                      f'products near the top of both lists win.', fontsize=9, color=MUTED)
+    ax.text(0.05, 0.12, f"Query: “{query}”. A product earns 1/(k + rank) from each list that contains it.",
+            fontsize=NOTE, color=MUTED, va="center")
     save(fig, "diagram_rrf.png")
 
 
 # ---------------------------------------------------------------------------- 5. evaluation protocol
 
 def protocol():
-    fig, ax = canvas(12, 3.6)
-    box(ax, 0.2, 1.2, 2.2, 1.5, "1,000 queries", "fixed seed 42", size=10)
-    box(ax, 3.0, 2.15, 2.2, 0.95, "300 dev", "tune k1, b, RRF k,\nablations", fc="#f6f5f1", size=9.5)
-    box(ax, 3.0, 0.75, 2.2, 0.95, "700 test", "reported once", fc=EVAL, size=9.5)
-    arrow(ax, (2.4, 2.2), (3.0, 2.6)); arrow(ax, (2.4, 1.7), (3.0, 1.25))
-    box(ax, 6.0, 2.1, 2.7, 1.25, "Protocol A: re-rank", "order the ~20 judged\ncandidates of the query\n(ESCI Task 1)", fc=EVAL, size=9.5)
-    box(ax, 6.0, 0.3, 2.7, 1.25, "Protocol B: retrieve", "rank all 19,876 products;\nunjudged = not relevant", fc=EVAL, size=9.5)
-    arrow(ax, (5.2, 1.3), (6.0, 2.6)); arrow(ax, (5.2, 1.1), (6.0, 0.95))
-    box(ax, 9.3, 1.0, 2.5, 1.85, "Metrics", "P@10, R@10, R@100\nMAP, nDCG@10\n11-pt PR curve\nWilcoxon test", size=9.5)
-    arrow(ax, (8.7, 2.7), (9.3, 2.2)); arrow(ax, (8.7, 0.95), (9.3, 1.5))
-    ax.text(9.3, 0.55, "gains: E 3, S 2, C 1, I 0\nbinary relevant: Exact", fontsize=8.5, color=MUTED, va="top")
+    fig, ax = canvas(3.0)
+    box(ax, 0.05, 1.0, 1.2, 1.0, "1,000 queries", "split once,\nseed 42")
+    box(ax, 1.6, 1.75, 1.3, 0.95, "300 dev", "tuning and\nablations", fc=SOFT)
+    box(ax, 1.6, 0.3, 1.3, 0.95, "700 test", "scored once", fc=EVAL)
+    arrow(ax, (1.25, 1.7), (1.6, 2.2)); arrow(ax, (1.25, 1.3), (1.6, 0.8))
+    box(ax, 3.25, 1.75, 1.7, 0.95, "A. Re-rank", "order the judged\ncandidates (Task 1)", fc=EVAL)
+    box(ax, 3.25, 0.3, 1.7, 0.95, "B. Retrieve", "rank all 19,876\nproducts", fc=EVAL)
+    arrow(ax, (2.9, 0.95), (3.25, 2.1)); arrow(ax, (2.9, 0.75), (3.25, 0.75))
+    box(ax, 5.3, 0.3, 1.15, 2.4, "Metrics", "P@10\nR@10, R@100\nMAP\nnDCG@10\nPR curve\nWilcoxon test")
+    arrow(ax, (4.95, 2.2), (5.3, 2.0)); arrow(ax, (4.95, 0.75), (5.3, 0.95))
     save(fig, "diagram_protocol.png")
 
 
 # ---------------------------------------------------------------------------- 6. web application request flow
 
 def web_flow():
-    fig, ax = canvas(12, 5.3)
-    lanes = [(1.1, "Browser\n(app.js)"), (3.9, "FastAPI\n(backend/main.py)"), (6.9, "Rankers\n(src/models)"),
-             (9.9, "Index and caches\n(data/, in memory)")]
-    for x, name in lanes:
-        box(ax, x - 1.0, 4.45, 2.0, 0.75, name, size=9)
-        ax.plot([x, x], [0.15, 4.45], color=RULE, lw=1.2, ls="--")
+    fig, ax = canvas(4.4)
+    lanes = [(0.75, "Browser", "app.js"), (2.4, "FastAPI", "backend/main.py"), (4.05, "Rankers", "src/models"),
+             (5.7, "Index, caches", "in memory")]
+    for x, name, sub in lanes:
+        box(ax, x - 0.72, 3.65, 1.44, 0.7, name, sub)
+        ax.plot([x, x], [0.05, 3.65], color=RULE, lw=1.0, ls="--")
     steps = [
-        (1.1, 3.9, 4.0, "GET /api/search?q=...&model=bm25"),
-        (3.9, 3.9, 3.5, "clean, tokenize, stem the query"),
-        (3.9, 6.9, 3.0, "rank(q, k) or explain(q, product)"),
-        (6.9, 9.9, 2.5, "postings of query stems, or q · matrix"),
-        (9.9, 6.9, 2.0, "scores for all 19,876 products"),
-        (6.9, 3.9, 1.5, "top-k ids, per-term contributions"),
-        (3.9, 3.9, 1.0, "attach titles, ESCI labels, nDCG@10"),
-        (3.9, 1.1, 0.5, "JSON, rendered as the result list"),
+        (0.75, 2.4, 3.3, "GET /api/search"),
+        (2.4, 2.4, 2.9, "clean, tokenize, stem"),
+        (2.4, 4.05, 2.5, "rank() or explain()"),
+        (4.05, 5.7, 2.1, "postings or q · matrix"),
+        (5.7, 4.05, 1.7, "scores, all products"),
+        (4.05, 2.4, 1.3, "top-k, term scores"),
+        (2.4, 2.4, 0.9, "titles, labels, nDCG@10"),
+        (2.4, 0.75, 0.5, "JSON to the page"),
     ]
     for x0, x1, y, label in steps:
         if x0 == x1:
-            ax.add_patch(FancyBboxPatch((x0 + 0.08, y - 0.15), 2.75, 0.3, boxstyle="round,pad=0,rounding_size=0.04",
-                                        fc="#f6f5f1", ec=RULE))
-            ax.text(x0 + 0.18, y, label, fontsize=8.5, va="center")
+            ax.add_patch(FancyBboxPatch((x0 + 0.06, y - 0.14), 1.55, 0.28, boxstyle="round,pad=0,rounding_size=0.03",
+                                        fc=SOFT, ec=RULE, lw=0.7))
+            ax.text(x0 + 0.13, y, label, fontsize=NOTE, va="center")
         else:
-            arrow(ax, (x0, y), (x1, y), lw=1.0)
-            ax.text((x0 + x1) / 2, y + 0.07, label, fontsize=8.5, ha="center", va="bottom")
+            arrow(ax, (x0, y), (x1, y), lw=0.9)
+            ax.text((x0 + x1) / 2, y + 0.05, label, fontsize=NOTE, ha="center", va="bottom")
     save(fig, "diagram_web.png")
 
 
